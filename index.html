@@ -1,0 +1,2691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="referrer" content="no-referrer-when-downgrade">
+<meta http-equiv="Content-Security-Policy" content="img-src * data: blob:; default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:;">
+<title>RxMen — Men's Health OS</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --navy:#0d0f14;--navy2:#13161d;--navy3:#1a1e27;--navy4:#222738;
+  --crimson:#c41e3a;--crimson2:#e8294a;
+  --gold:#b8964a;--gold2:#d4af6a;
+  --offwhite:#f0ede8;--text:#e8e5e0;--muted:#6b7280;--muted2:#8892a4;
+  --green:#22c55e;--blue:#3b82f6;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.1);
+  --r:10px;--r2:14px;--r3:999px;
+}
+html,body{height:100%;overflow:hidden;background:#000;}
+body{font-family:'Inter',sans-serif;color:var(--text);font-size:14px;line-height:1.5;}
+*::-webkit-scrollbar{display:none;}*{scrollbar-width:none;}
+.app{width:100%;max-width:430px;height:100vh;margin:0 auto;background:var(--navy);display:flex;flex-direction:column;overflow:hidden;position:relative;}
+
+/* TOP BAR */
+.topbar{padding:14px 20px 10px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);position:relative;z-index:20;background:var(--navy);min-height:54px;}
+.logo{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--offwhite);}
+.logo span{color:var(--crimson);}
+.topbar-right{display:flex;align-items:center;gap:8px;}
+.streak-pill{display:flex;align-items:center;gap:5px;background:rgba(184,150,74,0.1);border:1px solid rgba(184,150,74,0.2);border-radius:var(--r3);padding:5px 11px;font-size:11px;font-weight:600;color:var(--gold2);letter-spacing:0.3px;}
+.icon-btn{width:32px;height:32px;border-radius:8px;background:var(--navy3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;position:relative;}
+.notif-pip{position:absolute;top:5px;right:5px;width:6px;height:6px;border-radius:50%;background:var(--crimson);border:1.5px solid var(--navy);}
+
+/* LEVEL BAR */
+.level-bar{padding:8px 20px 10px;background:var(--navy);}
+.level-meta{display:flex;justify-content:space-between;margin-bottom:5px;}
+.level-name{font-size:11px;color:var(--muted2);font-weight:500;letter-spacing:0.4px;text-transform:uppercase;}
+.level-xp{font-size:11px;color:var(--gold);font-weight:600;}
+.progress-track{height:2px;background:var(--navy4);border-radius:99px;overflow:hidden;}
+.progress-fill{height:100%;width:68%;background:linear-gradient(90deg,var(--crimson),var(--gold));border-radius:99px;transition:width 0.7s ease;}
+
+/* SCREENS */
+.screen{display:none;flex:1;flex-direction:column;overflow:hidden;}
+.screen.active{display:flex;animation:fadeIn 0.2s ease;}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.scroll{flex:1;overflow-y:auto;padding-bottom:85px;}
+
+/* SECTION HEADER */
+.sec{display:flex;align-items:baseline;justify-content:space-between;padding:0 20px;margin-bottom:12px;}
+.sec-t{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--offwhite);}
+.sec-l{font-size:11px;color:var(--muted2);cursor:pointer;letter-spacing:0.3px;text-transform:uppercase;font-weight:500;}
+
+/* ── HOME ── */
+.greeting{padding:16px 20px 14px;}
+.greet-time{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:3px;}
+.greet-name{font-family:'Playfair Display',serif;font-size:24px;font-weight:600;color:var(--offwhite);}
+
+/* Mood check-in */
+.mood-card{margin:0 16px 18px;padding:14px 16px;background:var(--navy2);border:1px solid var(--border);border-radius:var(--r2);}
+.mood-label{font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:0.5px;font-weight:500;margin-bottom:10px;}
+.mood-row{display:flex;gap:8px;}
+.mood-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px;border-radius:var(--r);border:1px solid var(--border);background:var(--navy3);cursor:pointer;transition:all 0.2s;}
+.mood-btn.selected{border-color:rgba(196,30,58,0.4);background:rgba(196,30,58,0.08);}
+.mood-emoji{font-size:20px;}
+.mood-text{font-size:9px;color:var(--muted);font-weight:500;letter-spacing:0.2px;}
+
+/* Quick action pills */
+.quick-actions{display:flex;gap:8px;padding:0 16px;margin-bottom:18px;overflow-x:auto;}
+.qa-pill{flex-shrink:0;display:flex;align-items:center;gap:6px;padding:8px 14px;background:var(--navy2);border:1px solid var(--border);border-radius:var(--r3);font-size:12px;font-weight:500;color:var(--text);cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.qa-pill:active{border-color:rgba(196,30,58,0.35);color:var(--crimson2);}
+.qa-icon{font-size:14px;}
+
+/* Hero */
+.hero{margin:0 16px 18px;background:var(--navy2);border:1px solid var(--border2);border-radius:var(--r2);overflow:hidden;position:relative;}
+.hero-accent{position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--crimson),var(--gold),transparent);}
+.hero-body{padding:18px;}
+.hero-label{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--crimson2);margin-bottom:8px;}
+.hero-dot{width:5px;height:5px;border-radius:50%;background:var(--crimson2);animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.hero-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;line-height:1.4;color:var(--offwhite);margin-bottom:14px;}
+.hero-footer{display:flex;align-items:center;justify-content:space-between;}
+.hero-btn{display:inline-flex;align-items:center;gap:6px;background:var(--crimson);color:#fff;font-size:12px;font-weight:600;padding:8px 18px;border-radius:var(--r3);border:none;cursor:pointer;font-family:'Inter',sans-serif;transition:background 0.2s;}
+.hero-btn:active{background:var(--crimson2);}
+.xp-chip{font-size:11px;color:var(--gold);font-weight:600;background:rgba(184,150,74,0.08);border:1px solid rgba(184,150,74,0.18);padding:5px 12px;border-radius:var(--r3);}
+
+/* Streak calendar */
+.streak-cal{margin:0 16px 18px;padding:14px 16px;background:var(--navy2);border:1px solid var(--border);border-radius:var(--r2);}
+.streak-cal-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.streak-cal-title{font-size:12px;font-weight:600;color:var(--offwhite);}
+.streak-cal-sub{font-size:11px;color:var(--muted);}
+.streak-dots{display:flex;gap:6px;}
+.s-dot{flex:1;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;letter-spacing:0.3px;}
+.s-dot.done{background:rgba(196,30,58,0.15);border:1px solid rgba(196,30,58,0.3);color:var(--crimson2);}
+.s-dot.today{background:var(--crimson);border:1px solid var(--crimson2);color:#fff;}
+.s-dot.empty{background:var(--navy3);border:1px solid var(--border);color:var(--muted);}
+
+/* Stats */
+.stats-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 16px;margin-bottom:20px;}
+.stat{background:var(--navy2);border:1px solid var(--border);border-radius:var(--r2);padding:13px 10px;text-align:center;}
+.stat-n{font-family:'Playfair Display',serif;font-size:22px;font-weight:600;color:var(--offwhite);}
+.stat-l{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;margin-top:3px;font-weight:500;}
+.stat-sub{font-size:10px;margin-top:4px;font-weight:500;}
+
+/* Reel previews */
+.reel-strip{display:flex;gap:12px;padding:0 16px;overflow-x:auto;margin-bottom:22px;}
+.rp-card{flex-shrink:0;width:120px;cursor:pointer;}
+.rp-card:active{opacity:0.85;}
+.rp-img{width:120px;height:180px;border-radius:var(--r2);position:relative;overflow:hidden;margin-bottom:8px;background:var(--navy3);display:flex;align-items:center;justify-content:center;}
+.rp-emoji{font-size:44px;opacity:0.15;}
+.rp-grad{position:absolute;inset:0;background:linear-gradient(to top,rgba(13,15,20,0.9) 0%,transparent 55%);}
+.rp-cat{position:absolute;top:8px;left:8px;background:rgba(196,30,58,0.18);border:1px solid rgba(196,30,58,0.3);color:var(--crimson2);font-size:9px;font-weight:600;letter-spacing:0.4px;padding:2px 7px;border-radius:var(--r3);text-transform:uppercase;}
+.rp-play{position:absolute;bottom:9px;right:9px;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,0.12);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;}
+.rp-title{font-size:11px;font-weight:500;line-height:1.4;color:var(--text);}
+.rp-meta{font-size:10px;color:var(--muted);margin-top:2px;}
+
+/* Event cards */
+.ev-card{margin:0 16px 10px;padding:14px 16px;background:var(--navy2);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;transition:border-color 0.2s;}
+.ev-card:active{border-color:rgba(196,30,58,0.3);}
+.ev-card-top{display:flex;gap:12px;align-items:flex-start;margin-bottom:10px;}
+.ev-date-box{width:44px;height:48px;border-radius:8px;background:rgba(196,30,58,0.07);border:1px solid rgba(196,30,58,0.15);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;}
+.ev-mon{font-size:9px;color:var(--crimson2);font-weight:700;letter-spacing:0.7px;text-transform:uppercase;}
+.ev-day{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;color:var(--offwhite);line-height:1.1;}
+.ev-info{flex:1;}
+.ev-name{font-size:14px;font-weight:500;color:var(--offwhite);margin-bottom:4px;}
+.ev-meta{font-size:11px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.ev-going{font-size:10px;color:var(--gold);font-weight:600;background:rgba(184,150,74,0.08);border:1px solid rgba(184,150,74,0.15);padding:2px 8px;border-radius:var(--r3);}
+.ev-actions{display:flex;gap:8px;}
+.ev-join-btn{flex:1;padding:9px;border-radius:var(--r);border:1px solid rgba(196,30,58,0.3);background:rgba(196,30,58,0.08);color:var(--crimson2);font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s;text-align:center;}
+.ev-join-btn.joined{background:rgba(34,197,94,0.1);border-color:rgba(34,197,94,0.3);color:var(--green);}
+.ev-cal-btn{padding:9px 12px;border-radius:var(--r);border:1px solid var(--border);background:var(--navy3);color:var(--muted2);font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;}
+
+/* ── REELS ── */
+.reels-wrap{flex:1;position:relative;overflow:hidden;}
+.filter-row{position:absolute;top:0;left:0;right:0;z-index:10;padding:10px 16px;display:flex;gap:8px;overflow-x:auto;background:linear-gradient(to bottom,rgba(13,15,20,0.98) 70%,transparent);}
+.fchip{flex-shrink:0;padding:5px 13px;border-radius:var(--r3);font-size:11px;font-weight:500;cursor:pointer;letter-spacing:0.3px;border:1px solid var(--border);background:rgba(255,255,255,0.04);color:var(--muted2);transition:all 0.2s;}
+.fchip.on{background:rgba(196,30,58,0.12);border-color:rgba(196,30,58,0.3);color:var(--crimson2);}
+
+.reel-stack{position:absolute;inset:0;top:44px;}
+.reel-item{position:absolute;inset:0;transition:transform 0.42s cubic-bezier(0.25,0.46,0.45,0.94),opacity 0.42s;will-change:transform;}
+.reel-item.above{transform:translateY(-100%);opacity:0;pointer-events:none;}
+.reel-item.below{transform:translateY(100%);opacity:0;pointer-events:none;}
+.ri-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.ri-emoji-bg{font-size:100px;opacity:0.09;}
+.ri-vignette{position:absolute;inset:0;background:linear-gradient(to top,rgba(13,15,20,0.95) 0%,rgba(13,15,20,0.25) 55%,rgba(13,15,20,0.08) 100%);}
+.ri-top-grad{position:absolute;top:0;left:0;right:0;height:80px;background:linear-gradient(to bottom,rgba(13,15,20,0.55),transparent);}
+
+/* Progress bar on reel */
+.reel-progress-bar{position:absolute;bottom:0;left:0;right:0;height:2px;background:rgba(255,255,255,0.1);}
+.reel-progress-fill{height:100%;background:var(--crimson);transition:width 0.3s linear;}
+
+.ri-side{position:absolute;right:12px;bottom:80px;display:flex;flex-direction:column;align-items:center;gap:18px;}
+.ri-action{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;}
+.ri-icon{width:42px;height:42px;border-radius:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;font-size:17px;transition:transform 0.15s,background 0.15s;}
+.ri-action:active .ri-icon{transform:scale(0.88);}
+.ri-action.liked .ri-icon{background:rgba(196,30,58,0.2);border-color:rgba(196,30,58,0.4);}
+.ri-action.saved .ri-icon{background:rgba(184,150,74,0.15);border-color:rgba(184,150,74,0.3);}
+.ri-lbl{font-size:10px;color:rgba(255,255,255,0.45);font-weight:500;}
+
+.ri-info{position:absolute;bottom:14px;left:0;right:60px;padding:0 18px;}
+.ri-tag{display:inline-block;margin-bottom:8px;background:rgba(196,30,58,0.12);border:1px solid rgba(196,30,58,0.25);color:var(--crimson2);font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;padding:3px 10px;border-radius:var(--r3);}
+.ri-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:600;line-height:1.35;color:var(--offwhite);margin-bottom:6px;}
+.ri-src{font-size:11px;color:rgba(255,255,255,0.4);display:flex;align-items:center;gap:5px;}
+.ri-src-dot{width:4px;height:4px;border-radius:50%;background:var(--gold);}
+
+/* Speed-read summary panel */
+.summary-panel{position:absolute;bottom:0;left:0;right:0;background:rgba(13,15,20,0.97);border-top:1px solid var(--border2);backdrop-filter:blur(16px);padding:18px 20px 24px;z-index:20;transform:translateY(100%);transition:transform 0.3s ease;}
+.summary-panel.open{transform:translateY(0);}
+.sum-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.sum-title{font-family:'Playfair Display',serif;font-size:14px;font-weight:600;color:var(--offwhite);}
+.sum-close{font-size:18px;color:var(--muted);cursor:pointer;}
+.sum-point{display:flex;gap:10px;margin-bottom:10px;font-size:13px;line-height:1.55;}
+.sum-bullet{width:5px;height:5px;border-radius:50%;background:var(--crimson);flex-shrink:0;margin-top:8px;}
+
+/* Playlist drawer */
+.playlist-drawer{position:absolute;inset:0;background:rgba(13,15,20,0.88);backdrop-filter:blur(16px);z-index:30;display:none;align-items:flex-end;}
+.playlist-drawer.open{display:flex;}
+.pl-sheet{width:100%;background:var(--navy2);border-radius:20px 20px 0 0;border-top:1px solid var(--border2);padding:18px;}
+.pl-handle{width:36px;height:3px;background:var(--navy4);border-radius:99px;margin:0 auto 16px;}
+.pl-title{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;color:var(--offwhite);margin-bottom:14px;}
+.pl-opt{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--navy3);border-radius:var(--r);margin-bottom:8px;cursor:pointer;border:1px solid var(--border);transition:border-color 0.2s;}
+.pl-opt:active{border-color:rgba(196,30,58,0.3);}
+.pl-ico{font-size:18px;width:36px;text-align:center;}
+.pl-name{font-size:13px;font-weight:500;color:var(--offwhite);}
+.pl-count{font-size:11px;color:var(--muted);margin-top:1px;}
+
+/* Source drawer */
+.drawer{position:absolute;inset:0;background:rgba(13,15,20,0.85);backdrop-filter:blur(16px);z-index:50;display:none;align-items:flex-end;}
+.drawer.open{display:flex;}
+.drawer-sheet{width:100%;background:var(--navy2);border-radius:20px 20px 0 0;border-top:1px solid var(--border2);padding:18px;}
+.drawer-handle{width:36px;height:3px;background:var(--navy4);border-radius:99px;margin:0 auto 16px;}
+.drawer-title{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;color:var(--offwhite);margin-bottom:14px;}
+.d-opt{display:flex;align-items:center;gap:12px;padding:13px;background:var(--navy3);border-radius:var(--r);margin-bottom:8px;cursor:pointer;border:1px solid var(--border);transition:border-color 0.2s;}
+.d-opt:active{border-color:rgba(196,30,58,0.3);}
+.d-icon{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.d-name{font-size:13px;font-weight:500;color:var(--offwhite);}
+.d-sub{font-size:11px;color:var(--muted);margin-top:1px;}
+.d-arr{color:var(--muted);font-size:13px;margin-left:auto;}
+
+.r-dots{position:absolute;right:4px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:4px;}
+.r-dot{width:2px;height:15px;border-radius:99px;background:rgba(255,255,255,0.15);transition:all 0.3s;}
+.r-dot.on{height:25px;background:var(--crimson);}
+
+/* ── AI COACH ── */
+.ai-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.ai-hdr{padding:12px 20px 10px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);}
+.ai-avi{width:40px;height:40px;border-radius:10px;background:rgba(196,30,58,0.1);border:1px solid rgba(196,30,58,0.2);display:flex;align-items:center;justify-content:center;font-size:18px;}
+.ai-title{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;color:var(--offwhite);}
+.ai-online{font-size:11px;color:var(--muted2);display:flex;align-items:center;gap:4px;margin-top:2px;}
+.ai-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.35}}
+
+/* Coach mode tabs */
+.coach-modes{display:flex;gap:0;padding:10px 16px;border-bottom:1px solid var(--border);overflow-x:auto;}
+.cm-tab{flex-shrink:0;padding:6px 14px;font-size:11px;font-weight:600;letter-spacing:0.3px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;transition:all 0.2s;white-space:nowrap;}
+.cm-tab.on{color:var(--crimson2);border-bottom-color:var(--crimson);}
+
+.ai-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;}
+.msg{max-width:86%;padding:11px 14px;font-size:13px;line-height:1.65;border-radius:14px;animation:fadeIn 0.2s ease;}
+.msg.bot{background:var(--navy3);border:1px solid var(--border);border-bottom-left-radius:3px;align-self:flex-start;color:var(--text);}
+.msg.user{background:rgba(196,30,58,0.1);border:1px solid rgba(196,30,58,0.18);border-bottom-right-radius:3px;align-self:flex-end;color:var(--offwhite);}
+.msg.loading{align-self:flex-start;}
+.dots{display:flex;gap:5px;align-items:center;padding:3px 0;}
+.d{width:7px;height:7px;border-radius:50%;background:var(--muted2);animation:db 1.2s infinite;}
+.d:nth-child(2){animation-delay:0.2s;}.d:nth-child(3){animation-delay:0.4s;}
+@keyframes db{0%,80%,100%{transform:translateY(0);opacity:0.4}40%{transform:translateY(-5px);opacity:1}}
+
+/* Save response btn */
+.msg-actions{display:flex;gap:6px;margin-top:6px;}
+.msg-act-btn{font-size:10px;color:var(--muted);background:var(--navy4);border:1px solid var(--border);padding:3px 10px;border-radius:var(--r3);cursor:pointer;transition:color 0.2s;}
+.msg-act-btn:hover{color:var(--gold);}
+
+/* Follow-up chips */
+.followup-row{display:flex;gap:6px;flex-wrap:wrap;padding:0 14px;margin-bottom:6px;}
+.fu-chip{font-size:11px;color:var(--muted2);background:var(--navy3);border:1px solid var(--border);padding:5px 12px;border-radius:var(--r3);cursor:pointer;transition:border-color 0.2s;font-family:'Inter',sans-serif;}
+.fu-chip:hover{border-color:rgba(196,30,58,0.3);color:var(--crimson2);}
+
+.ai-chips{padding:8px 14px;display:flex;gap:8px;overflow-x:auto;border-top:1px solid var(--border);}
+.ai-chip{flex-shrink:0;padding:7px 13px;border-radius:var(--r3);background:var(--navy3);border:1px solid var(--border);font-size:11px;color:var(--muted2);cursor:pointer;transition:border-color 0.2s,color 0.2s;white-space:nowrap;font-family:'Inter',sans-serif;}
+.ai-chip:hover{border-color:rgba(196,30,58,0.3);color:var(--crimson2);}
+
+.ai-row{padding:10px 14px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:center;}
+.ai-input{flex:1;background:var(--navy3);border:1px solid var(--border);border-radius:var(--r3);padding:9px 15px;font-size:13px;color:var(--text);font-family:'Inter',sans-serif;outline:none;transition:border-color 0.2s;}
+.ai-input:focus{border-color:rgba(196,30,58,0.35);}
+.ai-input::placeholder{color:var(--muted);}
+.ai-send{width:38px;height:38px;border-radius:50%;border:none;background:var(--crimson);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:background 0.15s,transform 0.15s;flex-shrink:0;}
+.ai-send:active{transform:scale(0.9);}
+
+/* Voice btn */
+.voice-btn{width:38px;height:38px;border-radius:50%;border:1px solid var(--border);background:var(--navy3);color:var(--muted2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;transition:all 0.2s;}
+.voice-btn.listening{background:rgba(196,30,58,0.15);border-color:rgba(196,30,58,0.4);color:var(--crimson2);animation:voicePulse 1s infinite;}
+@keyframes voicePulse{0%,100%{box-shadow:0 0 0 0 rgba(196,30,58,0.3)}50%{box-shadow:0 0 0 6px rgba(196,30,58,0)}}
+
+/* ── COMMUNITY ── */
+.community-scroll{flex:1;overflow-y:auto;padding-bottom:85px;}
+.lb-card{margin:0 16px 20px;background:var(--navy2);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;}
+.lb-hdr{padding:13px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.lb-hdr-t{font-family:'Playfair Display',serif;font-size:14px;font-weight:600;color:var(--offwhite);}
+.lb-period{font-size:10px;color:var(--muted);background:var(--navy3);padding:3px 10px;border-radius:var(--r3);border:1px solid var(--border);text-transform:uppercase;letter-spacing:0.4px;}
+.lb-row{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.15s;}
+.lb-row:last-child{border-bottom:none;}
+.lb-row:active{background:rgba(255,255,255,0.02);}
+.lb-row.you{background:rgba(196,30,58,0.03);}
+.lb-rank{font-family:'Playfair Display',serif;font-size:14px;font-weight:700;width:22px;text-align:center;}
+.lb-avi{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;font-family:'Playfair Display',serif;}
+.lb-data{flex:1;}
+.lb-name-row{font-size:13px;font-weight:500;color:var(--offwhite);display:flex;align-items:center;gap:6px;}
+.you-tag{font-size:9px;background:rgba(196,30,58,0.1);border:1px solid rgba(196,30,58,0.22);color:var(--crimson2);padding:2px 7px;border-radius:var(--r3);font-weight:600;}
+.lb-streak{font-size:11px;color:var(--muted);margin-top:1px;}
+.lb-xp-v{font-family:'Playfair Display',serif;font-size:14px;font-weight:600;color:var(--gold);}
+
+/* Friend comparison */
+.friend-comp{margin:0 16px 20px;padding:14px 16px;background:var(--navy2);border:1px solid var(--border);border-radius:var(--r2);}
+.fc-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:600;margin-bottom:10px;}
+.fc-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.fc-avi{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+.fc-info{flex:1;}
+.fc-name{font-size:12px;font-weight:500;color:var(--offwhite);}
+.fc-track{height:4px;background:var(--navy4);border-radius:99px;margin-top:5px;overflow:hidden;}
+.fc-fill{height:100%;border-radius:99px;}
+.fc-xp{font-size:11px;color:var(--muted);font-weight:500;}
+.fc-cta{font-size:12px;color:var(--crimson2);cursor:pointer;margin-top:10px;font-weight:500;}
+
+/* Challenge feed */
+.challenge-feed{margin:0 16px 20px;}
+.chal-card{background:var(--navy2);border:1px solid var(--border);border-radius:var(--r2);padding:14px 16px;margin-bottom:10px;}
+.chal-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+.chal-name{font-size:14px;font-weight:500;color:var(--offwhite);line-height:1.35;flex:1;margin-right:10px;}
+.chal-xp{font-size:11px;color:var(--gold);font-weight:600;background:rgba(184,150,74,0.08);border:1px solid rgba(184,150,74,0.15);padding:3px 9px;border-radius:var(--r3);flex-shrink:0;}
+.chal-meta{font-size:11px;color:var(--muted);margin-bottom:10px;}
+.chal-bar{height:3px;background:var(--navy4);border-radius:99px;overflow:hidden;margin-bottom:10px;}
+.chal-fill{height:100%;background:linear-gradient(90deg,var(--crimson),var(--gold));border-radius:99px;}
+.chal-footer{display:flex;align-items:center;justify-content:space-between;}
+.chal-participants{font-size:11px;color:var(--muted);}
+.chal-join-btn{font-size:12px;font-weight:600;padding:7px 16px;border-radius:var(--r3);border:none;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s;}
+.chal-join-btn.join{background:rgba(196,30,58,0.1);border:1px solid rgba(196,30,58,0.3);color:var(--crimson2);}
+.chal-join-btn.joined{background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);color:var(--green);}
+
+/* Share streak */
+.share-streak-card{margin:0 16px 20px;padding:16px;background:linear-gradient(135deg,rgba(196,30,58,0.08),rgba(184,150,74,0.05));border:1px solid rgba(196,30,58,0.15);border-radius:var(--r2);display:flex;align-items:center;gap:12px;cursor:pointer;}
+.share-streak-card:active{opacity:0.85;}
+.ss-icon{font-size:28px;}
+.ss-info{flex:1;}
+.ss-title{font-size:14px;font-weight:500;color:var(--offwhite);}
+.ss-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.ss-btn{font-size:11px;color:var(--crimson2);font-weight:600;background:rgba(196,30,58,0.1);border:1px solid rgba(196,30,58,0.2);padding:5px 12px;border-radius:var(--r3);}
+
+/* Badges */
+.badges{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:0 16px;margin-bottom:20px;}
+.badge{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;}
+.badge-wrap{width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;transition:transform 0.15s;}
+.badge:active .badge-wrap{transform:scale(0.92);}
+.badge-wrap.earned{background:rgba(184,150,74,0.08);border:1px solid rgba(184,150,74,0.2);}
+.badge-wrap.locked{background:var(--navy3);border:1px solid var(--border);filter:grayscale(1) opacity(0.3);}
+.badge-name{font-size:10px;color:var(--muted);text-align:center;line-height:1.3;font-weight:500;}
+
+/* ── NUTRITION ── */
+.nut-scroll{flex:1;overflow-y:auto;padding-bottom:85px;}
+.calorie-card{margin:0 16px 18px;padding:20px;background:var(--navy2);border:1px solid var(--border);border-radius:var(--r2);display:flex;align-items:center;gap:20px;}
+.ring-svg{flex-shrink:0;}
+.ring-info{flex:1;}
+.ring-big{font-family:'Playfair Display',serif;font-size:28px;font-weight:600;color:var(--offwhite);}
+.ring-sub{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;}
+.ring-remain{font-size:13px;color:var(--gold);font-weight:500;margin-top:8px;}
+
+/* Weekly chart */
+.weekly-chart{margin:0 16px 18px;padding:16px;background:var(--navy2);border:1px solid var(--border);border-radius:var(--r2);}
+.wc-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.wc-title{font-size:12px;font-weight:600;color:var(--offwhite);}
+.wc-avg{font-size:11px;color:var(--gold);}
+.wc-bars{display:flex;gap:6px;align-items:flex-end;height:60px;}
+.wc-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.wc-bar{width:100%;border-radius:3px 3px 0 0;transition:height 0.6s ease;min-height:4px;}
+.wc-day{font-size:9px;color:var(--muted);font-weight:500;}
+
+.macros-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 16px;margin-bottom:18px;}
+.macro-box{background:var(--navy2);border:1px solid var(--border);border-radius:var(--r2);padding:13px 10px;text-align:center;}
+.macro-val{font-family:'Playfair Display',serif;font-size:19px;font-weight:600;}
+.macro-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;margin-top:3px;font-weight:500;}
+.macro-track{height:2px;border-radius:99px;margin-top:8px;background:var(--navy4);overflow:hidden;}
+.macro-fill-bar{height:100%;border-radius:99px;}
+
+/* Water tracker */
+.water-card{margin:0 16px 18px;padding:14px 16px;background:var(--navy2);border:1px solid var(--border);border-radius:var(--r2);}
+.water-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.water-title{font-size:12px;font-weight:600;color:var(--offwhite);display:flex;align-items:center;gap:6px;}
+.water-count{font-size:11px;color:var(--blue);font-weight:600;}
+.water-glasses{display:flex;gap:7px;margin-bottom:10px;}
+.glass{width:28px;height:36px;border-radius:4px 4px 6px 6px;border:1px solid rgba(59,130,246,0.25);background:var(--navy3);cursor:pointer;position:relative;overflow:hidden;transition:all 0.2s;}
+.glass.filled{border-color:rgba(59,130,246,0.5);}
+.glass-fill{position:absolute;bottom:0;left:0;right:0;background:rgba(59,130,246,0.35);transition:height 0.3s ease;}
+.water-target{font-size:11px;color:var(--muted);}
+
+/* Supplement tracker */
+.supp-card{margin:0 16px 18px;padding:14px 16px;background:var(--navy2);border:1px solid var(--border);border-radius:var(--r2);}
+.supp-hdr{font-size:12px;font-weight:600;color:var(--offwhite);margin-bottom:12px;}
+.supp-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);}
+.supp-row:last-child{border-bottom:none;}
+.supp-name{flex:1;font-size:13px;color:var(--text);}
+.supp-time{font-size:11px;color:var(--muted);}
+.supp-check{width:22px;height:22px;border-radius:6px;border:1px solid var(--border);background:var(--navy3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all 0.2s;}
+.supp-check.checked{background:rgba(34,197,94,0.12);border-color:rgba(34,197,94,0.3);}
+
+.meal-list{padding:0 16px;}
+.meal-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+.meal-row:last-child{border-bottom:none;}
+.meal-ico{width:36px;height:36px;background:var(--navy3);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.meal-data{flex:1;}
+.meal-n{font-size:13px;font-weight:500;color:var(--offwhite);}
+.meal-s{font-size:11px;color:var(--muted);margin-top:2px;}
+.meal-kcal{font-family:'Playfair Display',serif;font-size:14px;font-weight:600;color:var(--gold);}
+
+.log-btn{display:flex;align-items:center;justify-content:center;gap:8px;margin:14px 16px;padding:12px;background:transparent;border:1px dashed rgba(184,150,74,0.2);border-radius:var(--r);font-size:13px;color:var(--gold);cursor:pointer;font-weight:500;font-family:'Inter',sans-serif;transition:background 0.2s;}
+.log-btn:active{background:rgba(184,150,74,0.05);}
+
+.ai-nutr-cta{margin:0 16px 8px;padding:14px;background:rgba(196,30,58,0.04);border:1px solid rgba(196,30,58,0.12);border-radius:var(--r);cursor:pointer;display:flex;align-items:center;gap:12px;}
+.ai-nutr-cta:active{background:rgba(196,30,58,0.09);}
+.an-icon{width:38px;height:38px;border-radius:9px;background:rgba(196,30,58,0.1);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.an-title{font-size:13px;font-weight:500;color:var(--offwhite);}
+.an-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.an-arr{color:var(--muted);font-size:13px;margin-left:auto;}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{display:flex;align-items:center;justify-content:space-around;padding:10px 0 max(14px,env(safe-area-inset-bottom));border-top:1px solid var(--border);background:rgba(13,15,20,0.98);backdrop-filter:blur(20px);position:relative;z-index:20;}
+.nav-btn{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:4px 10px;flex:1;transition:all 0.2s;}
+.nav-ico{font-size:18px;color:var(--muted);transition:color 0.2s;}
+.nav-lbl{font-size:10px;color:var(--muted);font-weight:500;letter-spacing:0.3px;transition:color 0.2s;}
+.nav-btn.on .nav-ico,.nav-btn.on .nav-lbl{color:var(--crimson2);}
+.nav-center{width:48px;height:48px;border-radius:12px;flex-shrink:0;background:var(--crimson);display:flex;align-items:center;justify-content:center;font-size:19px;cursor:pointer;transform:translateY(-10px);box-shadow:0 4px 18px rgba(196,30,58,0.35);transition:transform 0.15s;}
+.nav-center:active{transform:translateY(-10px) scale(0.92);}
+
+/* TOAST / XP */
+.toast{position:fixed;bottom:74px;left:50%;transform:translateX(-50%) translateY(14px);background:var(--navy2);border:1px solid var(--border2);color:var(--text);padding:9px 18px;border-radius:var(--r3);font-size:12px;font-weight:500;opacity:0;transition:all 0.28s;white-space:nowrap;z-index:200;pointer-events:none;}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
+.xp-pop{position:fixed;top:55px;right:14px;background:rgba(184,150,74,0.1);border:1px solid rgba(184,150,74,0.25);color:var(--gold2);font-weight:600;font-size:12px;letter-spacing:0.3px;padding:6px 13px;border-radius:var(--r3);opacity:0;transform:translateY(0);transition:all 0.3s;z-index:200;pointer-events:none;}
+.xp-pop.on{opacity:1;transform:translateY(-8px);}
+
+/* RSVP modal */
+.rsvp-modal{position:fixed;inset:0;background:rgba(13,15,20,0.9);backdrop-filter:blur(18px);z-index:100;display:none;align-items:center;justify-content:center;padding:24px;}
+.rsvp-modal.open{display:flex;}
+.rsvp-card{background:var(--navy2);border:1px solid var(--border2);border-radius:20px;padding:24px;width:100%;max-width:340px;}
+.rsvp-emoji{font-size:36px;margin-bottom:14px;text-align:center;}
+.rsvp-name{font-family:'Playfair Display',serif;font-size:18px;font-weight:600;color:var(--offwhite);margin-bottom:6px;text-align:center;}
+.rsvp-detail{font-size:12px;color:var(--muted);text-align:center;margin-bottom:20px;line-height:1.6;}
+.rsvp-btns{display:flex;gap:10px;}
+.rsvp-confirm{flex:1;padding:12px;background:var(--crimson);border:none;border-radius:var(--r3);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+.rsvp-cancel{padding:12px 18px;background:var(--navy3);border:1px solid var(--border);border-radius:var(--r3);color:var(--muted2);font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;}
+.rsvp-xp{font-size:11px;color:var(--gold);text-align:center;margin-top:12px;font-weight:500;}
+
+.divider{height:1px;background:var(--border);margin:0 16px 20px;}
+
+/* ── LOGIN SCREEN ── */
+.login-screen{
+  position:fixed;inset:0;z-index:999;
+  background:var(--navy);
+  display:flex;flex-direction:column;
+  max-width:430px;margin:0 auto;
+  overflow-y:auto;
+}
+.login-screen.hidden{display:none;}
+
+.login-hero{
+  position:relative;padding:60px 32px 40px;
+  background:linear-gradient(175deg,#1a0d10 0%,var(--navy) 70%);
+  text-align:center;
+  border-bottom:1px solid var(--border);
+  overflow:hidden;
+}
+.login-hero-glow{
+  position:absolute;top:-60px;left:50%;transform:translateX(-50%);
+  width:260px;height:260px;
+  background:radial-gradient(circle,rgba(196,30,58,0.12) 0%,transparent 70%);
+  pointer-events:none;
+}
+.login-logo{
+  font-family:'Playfair Display',serif;
+  font-size:42px;font-weight:700;letter-spacing:0.5px;
+  color:var(--offwhite);margin-bottom:6px;
+}
+.login-logo span{color:var(--crimson);}
+.login-tagline{
+  font-size:13px;color:var(--muted2);letter-spacing:0.5px;
+  line-height:1.6;
+}
+
+.login-body{padding:32px 24px 40px;flex:1;}
+
+/* Tab toggle */
+.auth-tabs{
+  display:flex;background:var(--navy3);border-radius:var(--r3);
+  padding:3px;margin-bottom:28px;border:1px solid var(--border);
+}
+.auth-tab{
+  flex:1;padding:9px;text-align:center;border-radius:var(--r3);
+  font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;
+  color:var(--muted);
+}
+.auth-tab.on{background:var(--crimson);color:#fff;font-weight:600;}
+
+/* Method toggle */
+.method-toggle{
+  display:flex;gap:8px;margin-bottom:22px;
+}
+.method-btn{
+  flex:1;padding:9px;border-radius:var(--r);
+  font-size:12px;font-weight:500;cursor:pointer;
+  border:1px solid var(--border);background:var(--navy3);
+  color:var(--muted2);text-align:center;transition:all 0.2s;
+}
+.method-btn.on{
+  border-color:rgba(196,30,58,0.4);background:rgba(196,30,58,0.08);
+  color:var(--crimson2);
+}
+
+/* Input fields */
+.input-group{margin-bottom:16px;}
+.input-label{
+  font-size:11px;font-weight:600;color:var(--muted2);
+  text-transform:uppercase;letter-spacing:0.5px;margin-bottom:7px;
+}
+.auth-input{
+  width:100%;background:var(--navy3);border:1px solid var(--border);
+  border-radius:var(--r);padding:13px 16px;
+  font-size:14px;color:var(--text);font-family:'Inter',sans-serif;
+  outline:none;transition:border-color 0.2s;
+}
+.auth-input:focus{border-color:rgba(196,30,58,0.4);}
+.auth-input::placeholder{color:var(--muted);}
+
+/* Phone input with flag */
+.phone-wrap{display:flex;gap:8px;}
+.country-code{
+  background:var(--navy3);border:1px solid var(--border);
+  border-radius:var(--r);padding:13px 12px;
+  font-size:14px;color:var(--text);font-family:'Inter',sans-serif;
+  outline:none;cursor:pointer;flex-shrink:0;width:85px;
+  transition:border-color 0.2s;
+}
+.country-code:focus{border-color:rgba(196,30,58,0.4);}
+
+/* OTP inputs */
+.otp-row{display:flex;gap:10px;justify-content:center;margin:6px 0 4px;}
+.otp-box{
+  width:46px;height:54px;border-radius:var(--r);
+  background:var(--navy3);border:1px solid var(--border);
+  font-size:22px;font-weight:600;font-family:'Playfair Display',serif;
+  color:var(--offwhite);text-align:center;outline:none;
+  transition:border-color 0.2s;caret-color:var(--crimson);
+}
+.otp-box:focus{border-color:rgba(196,30,58,0.5);background:rgba(196,30,58,0.04);}
+
+.otp-hint{font-size:12px;color:var(--muted);text-align:center;margin-bottom:20px;}
+.resend-link{color:var(--crimson2);cursor:pointer;font-weight:500;}
+
+/* Main CTA */
+.auth-cta{
+  width:100%;padding:14px;border-radius:var(--r3);border:none;
+  background:var(--crimson);color:#fff;
+  font-size:15px;font-weight:700;letter-spacing:0.3px;
+  cursor:pointer;font-family:'Inter',sans-serif;
+  transition:background 0.2s,transform 0.15s;margin-top:8px;
+}
+.auth-cta:active{transform:scale(0.98);}
+.auth-cta:disabled{background:var(--navy4);color:var(--muted);cursor:not-allowed;}
+.auth-cta.loading{background:rgba(196,30,58,0.6);}
+
+/* Divider */
+.or-divider{
+  display:flex;align-items:center;gap:12px;
+  margin:20px 0;color:var(--muted);font-size:12px;
+}
+.or-divider::before,.or-divider::after{
+  content:'';flex:1;height:1px;background:var(--border);
+}
+
+/* Social buttons */
+.social-btns{display:flex;gap:10px;margin-bottom:24px;}
+.social-btn{
+  flex:1;padding:11px;border-radius:var(--r);
+  border:1px solid var(--border);background:var(--navy3);
+  font-size:13px;font-weight:500;color:var(--text);
+  cursor:pointer;font-family:'Inter',sans-serif;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:border-color 0.2s;
+}
+.social-btn:active{border-color:var(--border2);}
+
+/* Terms */
+.auth-terms{
+  font-size:11px;color:var(--muted);text-align:center;
+  line-height:1.6;margin-top:20px;
+}
+.auth-terms span{color:var(--crimson2);cursor:pointer;}
+
+/* Success state */
+.login-success{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:60px 32px;text-align:center;flex:1;
+}
+.success-ring{
+  width:80px;height:80px;border-radius:50%;
+  background:rgba(34,197,94,0.1);border:2px solid rgba(34,197,94,0.3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:36px;margin-bottom:20px;
+  animation:scaleIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes scaleIn{from{transform:scale(0)}to{transform:scale(1)}}
+.success-title{
+  font-family:'Playfair Display',serif;font-size:24px;font-weight:700;
+  color:var(--offwhite);margin-bottom:8px;
+}
+.success-sub{font-size:14px;color:var(--muted2);line-height:1.6;}
+
+/* Error state */
+.input-error{
+  font-size:11px;color:#f87171;margin-top:5px;display:none;
+}
+.auth-input.error{border-color:rgba(248,113,113,0.5);}
+
+/* ── HAMBURGER + SIDE PANEL ── */
+.hamburger{
+  width:34px;height:34px;border-radius:8px;
+  background:var(--navy3);border:1px solid var(--border);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:5px;cursor:pointer;flex-shrink:0;transition:background 0.2s;
+}
+.hamburger:active{background:var(--navy4);}
+.hb-line{width:16px;height:1.5px;background:var(--text);border-radius:99px;transition:all 0.3s;}
+
+.panel-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.55);
+  backdrop-filter:blur(4px);z-index:300;
+  opacity:0;pointer-events:none;transition:opacity 0.3s;
+}
+.panel-overlay.open{opacity:1;pointer-events:auto;}
+
+.side-panel{
+  position:fixed;right:0;top:0;bottom:0;width:78%;max-width:300px;
+  background:var(--navy2);border-left:1px solid var(--border2);
+  z-index:301;transform:translateX(100%);
+  transition:transform 0.32s cubic-bezier(0.4,0,0.2,1);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.side-panel.open{transform:translateX(0);}
+
+.panel-header{
+  position:relative;min-height:160px;flex-shrink:0;
+}
+.panel-header-img{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;object-position:center 20%;
+}
+.panel-header-grad{
+  position:absolute;inset:0;
+  background:linear-gradient(to bottom,rgba(13,15,20,0.2) 0%,rgba(13,15,20,0.88) 100%);
+}
+.panel-header-content{
+  position:absolute;bottom:0;left:0;right:0;padding:16px 20px;
+}
+.panel-avatar{
+  width:52px;height:52px;border-radius:50%;
+  background:linear-gradient(135deg,var(--crimson),rgba(196,30,58,0.4));
+  border:2px solid rgba(196,30,58,0.4);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Playfair Display',serif;font-size:20px;font-weight:700;
+  color:#fff;margin-bottom:10px;
+}
+.panel-name{
+  font-family:'Playfair Display',serif;font-size:17px;
+  font-weight:600;color:var(--offwhite);margin-bottom:2px;
+}
+.panel-email{font-size:11px;color:rgba(255,255,255,0.5);}
+
+.panel-xp-row{
+  margin:14px 18px 0;padding:10px 14px;
+  background:var(--navy3);border-radius:var(--r);border:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;
+}
+.panel-xp-icon{font-size:18px;}
+.panel-xp-info{flex:1;}
+.panel-xp-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;font-weight:600;}
+.panel-xp-val{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;color:var(--gold2);}
+.panel-level-badge{font-size:10px;color:var(--crimson2);background:rgba(196,30,58,0.1);border:1px solid rgba(196,30,58,0.2);padding:3px 9px;border-radius:var(--r3);font-weight:600;}
+
+.panel-nav{flex:1;overflow-y:auto;padding:14px 18px;}
+.panel-section-label{
+  font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;
+  font-weight:600;margin-bottom:8px;margin-top:16px;
+}
+.panel-section-label:first-child{margin-top:0;}
+
+.panel-item{
+  display:flex;align-items:center;gap:13px;
+  padding:12px 14px;border-radius:var(--r);cursor:pointer;
+  transition:background 0.15s;margin-bottom:4px;
+}
+.panel-item:active{background:var(--navy3);}
+.panel-item:hover{background:var(--navy3);}
+.panel-item-icon{
+  width:36px;height:36px;border-radius:9px;
+  background:var(--navy3);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;flex-shrink:0;
+}
+.panel-item-label{font-size:14px;font-weight:500;color:var(--text);}
+.panel-item-sub{font-size:11px;color:var(--muted);margin-top:1px;}
+.panel-item-arrow{color:var(--muted);font-size:12px;margin-left:auto;}
+.panel-item.danger .panel-item-icon{background:rgba(196,30,58,0.08);border-color:rgba(196,30,58,0.2);}
+.panel-item.danger .panel-item-label{color:var(--crimson2);}
+
+.panel-divider{height:1px;background:var(--border);margin:8px 0;}
+
+.panel-footer{
+  padding:14px 18px;border-top:1px solid var(--border);flex-shrink:0;
+}
+.logout-btn{
+  width:100%;padding:12px;border-radius:var(--r3);border:1px solid rgba(196,30,58,0.3);
+  background:rgba(196,30,58,0.07);color:var(--crimson2);
+  font-size:13px;font-weight:600;cursor:pointer;
+  font-family:'Inter',sans-serif;letter-spacing:0.3px;
+  transition:background 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.logout-btn:active{background:rgba(196,30,58,0.15);}
+
+/* Notification badge on hamburger */
+.hb-badge{
+  position:absolute;top:-3px;right:-3px;
+  width:8px;height:8px;border-radius:50%;
+  background:var(--crimson);border:1.5px solid var(--navy);
+}
+
+
+/* ── DAILY ARTICLES ── */
+.article-card{
+  flex-shrink:0;width:200px;cursor:pointer;
+  background:var(--navy2);border:1px solid var(--border);
+  border-radius:var(--r2);overflow:hidden;
+  transition:border-color 0.2s;
+}
+.article-card:active{border-color:rgba(196,30,58,0.3);}
+.article-card-img{
+  width:100%;height:100px;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;font-size:40px;
+}
+.article-card-body{padding:10px 12px;}
+.article-cat{font-size:9px;font-weight:700;letter-spacing:0.7px;text-transform:uppercase;color:var(--crimson2);margin-bottom:5px;}
+.article-title{font-size:12px;font-weight:600;color:var(--offwhite);line-height:1.4;margin-bottom:6px;}
+.article-meta{font-size:10px;color:var(--muted);display:flex;align-items:center;justify-content:space-between;}
+.article-read{font-size:10px;color:var(--gold);font-weight:600;}
+
+
+/* ── PROFILE SCREEN ── */
+.profile-screen{
+  position:fixed;inset:0;background:var(--navy);z-index:400;
+  display:none;flex-direction:column;overflow:hidden;
+  max-width:430px;margin:0 auto;animation:fadeIn 0.2s ease;
+}
+.profile-screen.open{display:flex;}
+
+.profile-header{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 20px;border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.profile-back{
+  width:34px;height:34px;border-radius:8px;
+  background:var(--navy3);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:16px;
+}
+.profile-hdr-title{font-family:'Playfair Display',serif;font-size:17px;font-weight:600;color:var(--offwhite);}
+
+.profile-scroll{flex:1;overflow-y:auto;padding-bottom:30px;}
+
+.profile-avatar-section{
+  display:flex;flex-direction:column;align-items:center;
+  padding:28px 20px 20px;border-bottom:1px solid var(--border);
+}
+.profile-big-avatar{
+  width:80px;height:80px;border-radius:50%;
+  background:linear-gradient(135deg,var(--crimson),rgba(196,30,58,0.4));
+  border:3px solid rgba(196,30,58,0.3);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Playfair Display',serif;font-size:28px;font-weight:700;
+  color:#fff;margin-bottom:14px;cursor:pointer;position:relative;
+}
+.avatar-edit-badge{
+  position:absolute;bottom:0;right:0;
+  width:24px;height:24px;border-radius:50%;
+  background:var(--crimson);border:2px solid var(--navy);
+  display:flex;align-items:center;justify-content:center;font-size:11px;
+}
+.profile-display-name{font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:var(--offwhite);margin-bottom:4px;}
+.profile-display-email{font-size:13px;color:var(--muted2);}
+
+.profile-stats-row{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
+  background:var(--border);border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);margin-bottom:24px;
+}
+.profile-stat{
+  background:var(--navy2);padding:14px 10px;text-align:center;
+}
+.profile-stat-val{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--offwhite);}
+.profile-stat-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;margin-top:3px;}
+
+.profile-section{padding:0 20px;margin-bottom:24px;}
+.profile-section-title{
+  font-size:11px;font-weight:700;color:var(--muted2);
+  text-transform:uppercase;letter-spacing:0.5px;
+  margin-bottom:12px;
+}
+.profile-field{margin-bottom:14px;}
+.profile-field-label{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;}
+.profile-input{
+  width:100%;background:var(--navy3);border:1px solid var(--border);
+  border-radius:var(--r);padding:11px 14px;
+  font-size:14px;color:var(--text);font-family:'Inter',sans-serif;
+  outline:none;transition:border-color 0.2s;
+}
+.profile-input:focus{border-color:rgba(196,30,58,0.4);}
+.profile-select{
+  width:100%;background:var(--navy3);border:1px solid var(--border);
+  border-radius:var(--r);padding:11px 14px;
+  font-size:14px;color:var(--text);font-family:'Inter',sans-serif;
+  outline:none;cursor:pointer;
+}
+.profile-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.profile-save-btn{
+  width:100%;padding:13px;border-radius:var(--r3);border:none;
+  background:var(--crimson);color:#fff;
+  font-size:14px;font-weight:700;cursor:pointer;
+  font-family:'Inter',sans-serif;margin-top:8px;
+  transition:background 0.2s;
+}
+.profile-save-btn:active{background:var(--crimson2);}
+
+.goal-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+.goal-chip{
+  padding:10px 12px;border-radius:var(--r);
+  border:1px solid var(--border);background:var(--navy3);
+  font-size:12px;font-weight:500;color:var(--muted2);
+  cursor:pointer;text-align:center;transition:all 0.2s;
+}
+.goal-chip.selected{
+  border-color:rgba(196,30,58,0.4);background:rgba(196,30,58,0.08);color:var(--crimson2);
+}
+
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN SCREEN ══ -->
+<div class="login-screen" id="login-screen">
+
+  <div style="background:linear-gradient(160deg,#0d0818 0%,#1a0a14 50%,#0a1020 100%);padding:52px 32px 36px;text-align:center;position:relative;overflow:hidden;border-bottom:1px solid rgba(196,30,58,0.15);">
+    <svg style="position:absolute;right:-10px;top:0;bottom:0;height:100%;width:auto;opacity:0.12;" viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="80" cy="36" r="18" fill="#c41e3a"/>
+      <rect x="60" y="54" width="40" height="50" rx="8" fill="#c41e3a"/>
+      <line x1="60" y1="66" x2="20" y2="40" stroke="#c41e3a" stroke-width="14" stroke-linecap="round"/>
+      <line x1="100" y1="66" x2="140" y2="40" stroke="#c41e3a" stroke-width="14" stroke-linecap="round"/>
+      <rect x="10" y="30" width="150" height="14" rx="7" fill="#c41e3a"/>
+      <rect x="5" y="22" width="18" height="28" rx="5" fill="#c41e3a"/>
+      <rect x="137" y="22" width="18" height="28" rx="5" fill="#c41e3a"/>
+      <line x1="68" y1="104" x2="55" y2="165" stroke="#c41e3a" stroke-width="16" stroke-linecap="round"/>
+      <line x1="92" y1="104" x2="105" y2="165" stroke="#c41e3a" stroke-width="16" stroke-linecap="round"/>
+      <ellipse cx="52" cy="174" rx="16" ry="9" fill="#c41e3a"/>
+      <ellipse cx="108" cy="174" rx="16" ry="9" fill="#c41e3a"/>
+    </svg>
+    <div style="position:absolute;top:-60px;right:-40px;width:200px;height:200px;background:radial-gradient(circle,rgba(196,30,58,0.12),transparent 70%);pointer-events:none;"></div>
+    <div style="font-family:'Playfair Display',serif;font-size:42px;font-weight:700;color:#f0ede8;letter-spacing:0.5px;margin-bottom:8px;position:relative;">Rx<span style="color:#c41e3a;">Men</span></div>
+    <div style="font-size:13px;color:#8892a4;letter-spacing:0.5px;line-height:1.6;position:relative;">India's first complete men's health ecosystem</div>
+  </div>
+
+  <div class="login-body">
+    <div class="auth-tabs" id="auth-tabs">
+      <div class="auth-tab on" id="tab-login" onclick="setAuthMode('login')">Log in</div>
+      <div class="auth-tab" id="tab-signup" onclick="setAuthMode('signup')">Sign up</div>
+    </div>
+    <div class="method-toggle">
+      <div class="method-btn on" id="method-phone" onclick="setMethod('phone')">📱 Phone</div>
+      <div class="method-btn" id="method-email" onclick="setMethod('email')">✉️ Email</div>
+    </div>
+
+    <div id="flow-phone">
+      <div id="step-phone-input">
+        <div class="input-group">
+          <div class="input-label">Mobile number</div>
+          <div class="phone-wrap">
+            <select class="country-code" id="country-code">
+              <option value="+91">🇮🇳 +91</option>
+              <option value="+1">🇺🇸 +1</option>
+              <option value="+44">🇬🇧 +44</option>
+              <option value="+971">🇦🇪 +971</option>
+              <option value="+65">🇸🇬 +65</option>
+            </select>
+            <input class="auth-input" id="phone-input" type="tel" maxlength="10" placeholder="98765 43210"
+              oninput="this.value=this.value.replace(/\D/g,'');validatePhone()"
+              onkeydown="if(event.key==='Enter')sendOTP()">
+          </div>
+          <div class="input-error" id="phone-error">Please enter a valid 10-digit number</div>
+        </div>
+        <button class="auth-cta" id="send-otp-btn" onclick="sendOTP()" disabled>Send OTP</button>
+      </div>
+      <div id="step-otp" style="display:none;">
+        <div style="text-align:center;margin-bottom:20px;">
+          <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:600;color:var(--offwhite);margin-bottom:6px;">Enter verification code</div>
+          <div style="font-size:13px;color:var(--muted2);">Sent to <span id="otp-sent-to" style="color:var(--offwhite);font-weight:500;"></span></div>
+        </div>
+        <div class="otp-row">
+          <input class="otp-box" id="otp-0" type="tel" maxlength="1" oninput="otpInput(0)" onkeydown="otpKey(event,0)">
+          <input class="otp-box" id="otp-1" type="tel" maxlength="1" oninput="otpInput(1)" onkeydown="otpKey(event,1)">
+          <input class="otp-box" id="otp-2" type="tel" maxlength="1" oninput="otpInput(2)" onkeydown="otpKey(event,2)">
+          <input class="otp-box" id="otp-3" type="tel" maxlength="1" oninput="otpInput(3)" onkeydown="otpKey(event,3)">
+          <input class="otp-box" id="otp-4" type="tel" maxlength="1" oninput="otpInput(4)" onkeydown="otpKey(event,4)">
+          <input class="otp-box" id="otp-5" type="tel" maxlength="1" oninput="otpInput(5)" onkeydown="otpKey(event,5)">
+        </div>
+        <div class="otp-hint">Didn't receive it? <span class="resend-link" id="resend-link" onclick="resendOTP()">Resend in <span id="resend-timer">30</span>s</span></div>
+        <button class="auth-cta" id="verify-otp-btn" onclick="verifyOTP()" disabled>Verify & Continue</button>
+        <div style="text-align:center;margin-top:14px;">
+          <span style="font-size:12px;color:var(--muted2);cursor:pointer;" onclick="backToPhone()">← Change number</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="flow-email" style="display:none;">
+      <div class="input-group">
+        <div class="input-label">Email address</div>
+        <input class="auth-input" id="email-input" type="email" placeholder="ujjwal@example.com" oninput="validateEmail()">
+        <div class="input-error" id="email-error">Please enter a valid email</div>
+      </div>
+      <div class="input-group" id="name-group" style="display:none;">
+        <div class="input-label">Full name</div>
+        <input class="auth-input" id="name-input" type="text" placeholder="Ujjwal Srivastava">
+      </div>
+      <div class="input-group">
+        <div class="input-label" id="pass-label">Password</div>
+        <div style="position:relative;">
+          <input class="auth-input" id="pass-input" type="password" placeholder="Min. 8 characters" oninput="validatePass()" style="padding-right:44px;" onkeydown="if(event.key==='Enter')emailAuth()">
+          <div onclick="togglePass()" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:16px;color:var(--muted);" id="eye-btn">👁</div>
+        </div>
+        <div class="input-error" id="pass-error">Password must be at least 8 characters</div>
+      </div>
+      <div id="forgot-link" style="text-align:right;margin-bottom:16px;margin-top:-8px;">
+        <span style="font-size:12px;color:var(--crimson2);cursor:pointer;" onclick="forgotPassword()">Forgot password?</span>
+      </div>
+      <button class="auth-cta" id="email-auth-btn" onclick="emailAuth()">Log in</button>
+    </div>
+
+    <div class="or-divider">or continue with</div>
+    <div class="social-btns">
+      <div class="social-btn" onclick="socialAuth('Google')">
+        <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Google
+      </div>
+      <div class="social-btn" onclick="socialAuth('WhatsApp')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        WhatsApp
+      </div>
+    </div>
+    <div class="auth-terms">By continuing you agree to RxMen's <span>Terms</span> and <span>Privacy Policy</span>. Your health data is encrypted.</div>
+  </div>
+</div>
+
+<!-- ══ MAIN APP ══ -->
+<div class="app" id="app">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="logo" style="flex-shrink:0;white-space:nowrap;">Rx<span>Men</span></div>
+    <div class="topbar-right">
+      <div class="streak-pill">🔥 <span id="streak-num">7</span></div>
+      <div class="icon-btn" onclick="toast('3 new wellness events near you')">🔔<div class="notif-pip"></div></div>
+      <div class="hamburger" onclick="openPanel()" style="position:relative;">
+        <div class="hb-line"></div>
+        <div class="hb-line"></div>
+        <div class="hb-line"></div>
+        <div class="hb-badge"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- XP BAR -->
+  <div class="level-bar">
+    <div class="level-meta">
+      <div class="level-name">Level 4 — Iron Man</div>
+      <div class="level-xp" id="xp-label">680 / 1000 XP</div>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="xp-bar"></div></div>
+  </div>
+
+  <!-- ══ HOME ══ -->
+  <div class="screen active scroll" id="scr-home">
+    <div class="greeting">
+      <div class="greet-time" id="greet-time">Good morning</div>
+      <div class="greet-name">Ujjwal</div>
+    </div>
+    <div class="sec" style="margin-top:4px;"><div class="sec-t">Daily reads</div><div class="sec-l" onclick="loadMoreArticles()">Refresh →</div></div>
+    <div id="articles-strip" style="display:flex;gap:12px;padding:0 16px;overflow-x:auto;margin-bottom:20px;"></div>
+    <div class="quick-actions">
+      <div class="qa-pill" onclick="switchTo('nutrition');setTimeout(()=>toast('Log your meal below'),400)"><span class="qa-icon">🍽️</span>Log a meal</div>
+      <div class="qa-pill" onclick="startWorkout()"><span class="qa-icon">💪</span>Start workout</div>
+      <div class="qa-pill" onclick="switchTo('ai')"><span class="qa-icon">🩺</span>Ask coach</div>
+      <div class="qa-pill" onclick="switchTo('reels')"><span class="qa-icon">▶</span>Watch reels</div>
+    </div>
+    <div class="hero">
+      <div class="hero-accent"></div>
+      <div class="hero-body">
+        <div class="hero-label"><div class="hero-dot"></div> Daily Challenge</div>
+        <div class="hero-title">Complete a 15-min mobility routine before 9 AM — unlock your Week 2 badge</div>
+        <div class="hero-footer">
+          <button class="hero-btn" onclick="completeChallenge()">&#9654; &nbsp;Begin now</button>
+          <div class="xp-chip">+50 XP</div>
+        </div>
+      </div>
+    </div>
+    <div class="streak-cal">
+      <div class="streak-cal-hdr"><div class="streak-cal-title">🔥 7-day streak</div><div class="streak-cal-sub">Personal best</div></div>
+      <div class="streak-dots" id="streak-dots"></div>
+    </div>
+    <div class="sec"><div class="sec-t">This week</div><div class="sec-l" onclick="switchTo('nutrition')">Nutrition →</div></div>
+    <div class="stats-strip" id="home-stats"></div>
+    <div class="sec"><div class="sec-t">Trending for you</div><div class="sec-l" onclick="switchTo('reels')">All reels →</div></div>
+    <div class="reel-strip" id="home-reels"></div>
+    <div class="sec"><div class="sec-t">Events near <span id="home-city">you</span></div><div class="sec-l" onclick="switchTo('community')">See all →</div></div>
+    <div id="home-events"></div>
+  </div>
+
+  <!-- ══ REELS ══ -->
+  <div class="screen" id="scr-reels">
+    <div class="reels-wrap">
+      <div class="filter-row" id="filter-row"></div>
+      <div class="reel-stack" id="reel-stack"></div>
+      <div class="r-dots" id="r-dots"></div>
+      <div class="summary-panel" id="summary-panel">
+        <div class="sum-hdr"><div class="sum-title">Key takeaways</div><div class="sum-close" onclick="closeSummary()">✕</div></div>
+        <div id="sum-content"></div>
+      </div>
+    </div>
+    <div class="playlist-drawer" id="pl-drawer" onclick="closePLDrawer(event)">
+      <div class="pl-sheet">
+        <div class="pl-handle"></div>
+        <div class="pl-title">Save to playlist</div>
+        <div id="pl-opts"></div>
+      </div>
+    </div>
+    <div class="drawer" id="drawer" onclick="closeDrawer(event)">
+      <div class="drawer-sheet">
+        <div class="drawer-handle"></div>
+        <div class="drawer-title" id="drawer-title">Open with</div>
+        <div id="drawer-opts"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ AI COACH ══ -->
+  <div class="screen" id="scr-ai">
+    <div class="ai-wrap">
+      <div class="ai-hdr">
+        <div class="ai-avi">🩺</div>
+        <div>
+          <div class="ai-title">RxAI Coach</div>
+          <div class="ai-online"><div class="ai-dot"></div> Online · Powered by Claude</div>
+        </div>
+      </div>
+      <div class="coach-modes" id="coach-modes"></div>
+      <div class="ai-msgs" id="ai-msgs"></div>
+      <div class="followup-row" id="followup-row"></div>
+      <div class="ai-chips" id="ai-chips"></div>
+      <div class="ai-row">
+        <button class="voice-btn" id="voice-btn" onclick="toggleVoice()">🎙️</button>
+        <input class="ai-input" id="ai-input" placeholder="Ask about fitness, nutrition, recovery…" onkeydown="if(event.key==='Enter')sendAI()">
+        <button class="ai-send" onclick="sendAI()">↑</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ COMMUNITY ══ -->
+  <div class="screen" id="scr-community">
+    <div class="community-scroll">
+      <div style="padding:18px 20px 14px;"><div class="sec-t" style="font-size:19px">Community</div></div>
+      <div class="sec"><div class="sec-t">Leaderboard</div><div class="sec-l" id="city-label">Detecting location…</div></div>
+      <div class="lb-card" id="lb-card"></div>
+      <div class="sec"><div class="sec-t">vs. Top Player</div></div>
+      <div class="friend-comp" id="friend-comp"></div>
+      <div class="share-streak-card" onclick="shareStreak()">
+        <div class="ss-icon">📊</div>
+        <div class="ss-info"><div class="ss-title">Share your 7-day streak</div><div class="ss-sub">Generate your weekly health card</div></div>
+        <div class="ss-btn">Share →</div>
+      </div>
+      <div class="sec"><div class="sec-t">Active challenges</div></div>
+      <div class="challenge-feed" id="challenge-feed"></div>
+      <div class="sec"><div class="sec-t">Your badges</div><div class="sec-l" onclick="toast('6 more badges to unlock')">View all →</div></div>
+      <div class="badges" id="badges"></div>
+      <div class="divider"></div>
+      <div class="sec"><div class="sec-t">Events near <span id="events-city">you</span></div></div>
+      <div id="comm-events"></div>
+    </div>
+  </div>
+
+  <!-- ══ NUTRITION ══ -->
+  <div class="screen" id="scr-nutrition">
+    <div class="nut-scroll">
+      <div style="padding:18px 20px 14px;"><div class="sec-t" style="font-size:19px">Nutrition</div></div>
+      <div class="calorie-card">
+        <svg class="ring-svg" width="86" height="86" viewBox="0 0 86 86">
+          <defs><linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#c41e3a"/><stop offset="100%" stop-color="#b8964a"/>
+          </linearGradient></defs>
+          <circle fill="none" stroke="#1a1e27" stroke-width="7" cx="43" cy="43" r="34"/>
+          <circle fill="none" stroke="url(#rg)" stroke-width="7" stroke-linecap="round"
+            cx="43" cy="43" r="34" id="cal-ring" stroke-dasharray="214" stroke-dashoffset="72" transform="rotate(-90 43 43)"/>
+        </svg>
+        <div class="ring-info">
+          <div class="ring-big">1,840</div>
+          <div class="ring-sub">kcal consumed</div>
+          <div class="ring-remain">460 kcal remaining</div>
+        </div>
+      </div>
+      <div class="sec"><div class="sec-t">Weekly protein intake</div></div>
+      <div class="weekly-chart" id="weekly-chart"></div>
+      <div class="sec"><div class="sec-t">Macros today</div></div>
+      <div class="macros-grid" id="macros-grid"></div>
+      <div class="water-card">
+        <div class="water-hdr"><div class="water-title">💧 Water intake</div><div class="water-count" id="water-count">3 / 8 glasses</div></div>
+        <div class="water-glasses" id="water-glasses"></div>
+        <div class="water-target">Target: 8 glasses (2L) per day</div>
+      </div>
+      <div class="supp-card">
+        <div class="supp-hdr">💊 Supplements today</div>
+        <div id="supp-list"></div>
+      </div>
+      <div class="sec"><div class="sec-t">Meals logged</div><div class="sec-l" onclick="toast('Meal history — coming soon')">History →</div></div>
+      <div class="meal-list" id="meal-list"></div>
+      <button class="log-btn" onclick="logMealAI()">+ Log a meal</button>
+      <div class="ai-nutr-cta" onclick="goAskNutrition()">
+        <div class="an-icon">🩺</div>
+        <div style="flex:1"><div class="an-title">Ask RxAI Nutritionist</div><div class="an-sub">Personalised meal plans, macros, recipes</div></div>
+        <div class="an-arr">→</div>
+      </div>
+      <div style="height:8px;"></div>
+    </div>
+  </div>
+
+  <!-- ══ OVERLAYS ══ -->
+  <div class="panel-overlay" id="panel-overlay" onclick="closePanel()"></div>
+
+  <div class="side-panel" id="side-panel">
+    <div class="panel-header" style="background:linear-gradient(160deg,#1a0a14 0%,#0d1020 100%);display:flex;flex-direction:column;justify-content:flex-end;padding:28px 20px 18px;position:relative;overflow:hidden;">
+      <svg style="position:absolute;top:-20px;right:-20px;opacity:0.12;width:160px;height:160px;" viewBox="0 0 160 160">
+        <circle cx="130" cy="30" r="70" fill="none" stroke="#c41e3a" stroke-width="1.5"/>
+        <circle cx="130" cy="30" r="45" fill="none" stroke="#c41e3a" stroke-width="1"/>
+        <circle cx="130" cy="30" r="20" fill="rgba(196,30,58,0.4)"/>
+      </svg>
+      <div class="panel-avatar" id="panel-avatar">UJ</div>
+      <div class="panel-name" id="panel-name">Ujjwal</div>
+      <div class="panel-email" id="panel-email">ujjwal@rxmen.in</div>
+    </div>
+    <div class="panel-xp-row">
+      <div class="panel-xp-icon">⚡</div>
+      <div class="panel-xp-info"><div class="panel-xp-label">Progress</div><div class="panel-xp-val" id="panel-xp-val">680 / 1000 XP</div></div>
+      <div class="panel-level-badge">Level 4</div>
+    </div>
+    <div class="panel-nav">
+      <div class="panel-section-label">Account</div>
+      <div class="panel-item" onclick="panelNav('profile')"><div class="panel-item-icon">👤</div><div style="flex:1;"><div class="panel-item-label">My Profile</div><div class="panel-item-sub">Edit personal details</div></div><div class="panel-item-arrow">›</div></div>
+      <div class="panel-item" onclick="panelNav('goals')"><div class="panel-item-icon">🎯</div><div style="flex:1;"><div class="panel-item-label">Health Goals</div><div class="panel-item-sub">Set your targets</div></div><div class="panel-item-arrow">›</div></div>
+      <div class="panel-item" onclick="panelNav('subscription')"><div class="panel-item-icon">👑</div><div style="flex:1;"><div class="panel-item-label">Subscription</div><div class="panel-item-sub">Free plan · Upgrade to Pro</div></div><div class="panel-item-arrow">›</div></div>
+      <div class="panel-divider"></div>
+      <div class="panel-section-label">Features</div>
+      <div class="panel-item" onclick="closePanel();switchTo('reels')"><div class="panel-item-icon">▶</div><div style="flex:1;"><div class="panel-item-label">Wellness Reels</div><div class="panel-item-sub">Fitness & nutrition content</div></div><div class="panel-item-arrow">›</div></div>
+      <div class="panel-item" onclick="closePanel();switchTo('ai')"><div class="panel-item-icon">🩺</div><div style="flex:1;"><div class="panel-item-label">RxAI Coach</div><div class="panel-item-sub">Your personal health advisor</div></div><div class="panel-item-arrow">›</div></div>
+      <div class="panel-item" onclick="closePanel();switchTo('community')"><div class="panel-item-icon">◎</div><div style="flex:1;"><div class="panel-item-label">Community</div><div class="panel-item-sub">Leaderboard & events</div></div><div class="panel-item-arrow">›</div></div>
+      <div class="panel-divider"></div>
+      <div class="panel-section-label">Settings</div>
+      <div class="panel-item" onclick="panelNav('notifications')"><div class="panel-item-icon">🔔</div><div style="flex:1;"><div class="panel-item-label">Notifications</div><div class="panel-item-sub">Manage your alerts</div></div><div class="panel-item-arrow">›</div></div>
+      <div class="panel-item" onclick="panelNav('privacy')"><div class="panel-item-icon">🔒</div><div style="flex:1;"><div class="panel-item-label">Privacy & Data</div><div class="panel-item-sub">Your data is encrypted</div></div><div class="panel-item-arrow">›</div></div>
+      <div class="panel-item" onclick="panelNav('help')"><div class="panel-item-icon">💬</div><div style="flex:1;"><div class="panel-item-label">Help & Support</div><div class="panel-item-sub">FAQs, contact us</div></div><div class="panel-item-arrow">›</div></div>
+      <div class="panel-divider"></div>
+      <div class="panel-item danger" onclick="confirmLogout()"><div class="panel-item-icon">🚪</div><div style="flex:1;"><div class="panel-item-label">Log out</div></div></div>
+    </div>
+    <div class="panel-footer">
+      <div style="font-size:10px;color:var(--muted);text-align:center;margin-bottom:10px;">RxMen v1.0 · Member since Apr 2026</div>
+      <button class="logout-btn" onclick="confirmLogout()">🚪 &nbsp;Log out</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast-el"></div>
+  <div class="xp-pop" id="xp-pop"></div>
+
+  <div class="rsvp-modal" id="rsvp-modal">
+    <div class="rsvp-card">
+      <div class="rsvp-emoji" id="rsvp-emoji">🏋️</div>
+      <div class="rsvp-name" id="rsvp-name">Event Name</div>
+      <div class="rsvp-detail" id="rsvp-detail">Event details</div>
+      <div class="rsvp-btns">
+        <button class="rsvp-cancel" onclick="closeRSVP()">Cancel</button>
+        <button class="rsvp-confirm" onclick="confirmRSVP()">Confirm RSVP</button>
+      </div>
+      <div class="rsvp-xp">+20 XP for joining this event</div>
+    </div>
+  </div>
+
+  <!-- ══ BOTTOM NAV ══ -->
+  <div class="bottom-nav">
+    <div class="nav-btn on" id="nav-home" onclick="switchTo('home')"><div class="nav-ico">⌂</div><div class="nav-lbl">Home</div></div>
+    <div class="nav-btn" id="nav-reels" onclick="switchTo('reels')"><div class="nav-ico">▶</div><div class="nav-lbl">Reels</div></div>
+    <div class="nav-center" onclick="switchTo('ai')">🩺</div>
+    <div class="nav-btn" id="nav-community" onclick="switchTo('community')"><div class="nav-ico">◎</div><div class="nav-lbl">Community</div></div>
+    <div class="nav-btn" id="nav-nutrition" onclick="switchTo('nutrition')"><div class="nav-ico">◈</div><div class="nav-lbl">Nutrition</div></div>
+  </div>
+
+
+  <!-- ══ PROFILE SCREEN ══ -->
+  <div class="profile-screen" id="profile-screen">
+    <div class="profile-header">
+      <div class="profile-back" onclick="closeProfile()">←</div>
+      <div class="profile-hdr-title">My Profile</div>
+    </div>
+    <div class="profile-scroll">
+      <div class="profile-avatar-section">
+        <div class="profile-big-avatar" id="profile-big-avatar" onclick="toast('Photo upload coming soon')">
+          <span id="profile-avatar-initials">UJ</span>
+          <div class="avatar-edit-badge">✎</div>
+        </div>
+        <div class="profile-display-name" id="profile-name-display">Ujjwal</div>
+        <div class="profile-display-email" id="profile-email-display">ujjwal@rxmen.in</div>
+      </div>
+
+      <div class="profile-stats-row">
+        <div class="profile-stat">
+          <div class="profile-stat-val" id="prof-streak">7</div>
+          <div class="profile-stat-lbl">Day streak</div>
+        </div>
+        <div class="profile-stat">
+          <div class="profile-stat-val" id="prof-xp">680</div>
+          <div class="profile-stat-lbl">XP earned</div>
+        </div>
+        <div class="profile-stat">
+          <div class="profile-stat-val">4</div>
+          <div class="profile-stat-lbl">Level</div>
+        </div>
+      </div>
+
+      <div class="profile-section">
+        <div class="profile-section-title">Personal info</div>
+        <div class="profile-field">
+          <div class="profile-field-label">Full name</div>
+          <input class="profile-input" id="prof-name" type="text" placeholder="Your name">
+        </div>
+        <div class="profile-row">
+          <div class="profile-field">
+            <div class="profile-field-label">Age</div>
+            <input class="profile-input" id="prof-age" type="number" placeholder="25" min="16" max="80">
+          </div>
+          <div class="profile-field">
+            <div class="profile-field-label">City</div>
+            <input class="profile-input" id="prof-city" type="text" placeholder="Delhi">
+          </div>
+        </div>
+        <div class="profile-row">
+          <div class="profile-field">
+            <div class="profile-field-label">Weight (kg)</div>
+            <input class="profile-input" id="prof-weight" type="number" placeholder="70" min="30" max="200">
+          </div>
+          <div class="profile-field">
+            <div class="profile-field-label">Height (cm)</div>
+            <input class="profile-input" id="prof-height" type="number" placeholder="175" min="100" max="250">
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-section">
+        <div class="profile-section-title">Health goal</div>
+        <div class="goal-grid" id="goal-grid">
+          <div class="goal-chip" data-goal="Build muscle" onclick="selectGoal(this)">💪 Build muscle</div>
+          <div class="goal-chip" data-goal="Lose fat" onclick="selectGoal(this)">🔥 Lose fat</div>
+          <div class="goal-chip" data-goal="Improve fitness" onclick="selectGoal(this)">🏃 Improve fitness</div>
+          <div class="goal-chip" data-goal="Better sleep" onclick="selectGoal(this)">😴 Better sleep</div>
+          <div class="goal-chip" data-goal="Reduce stress" onclick="selectGoal(this)">🧘 Reduce stress</div>
+          <div class="goal-chip" data-goal="Eat healthier" onclick="selectGoal(this)">🥗 Eat healthier</div>
+        </div>
+      </div>
+
+      <div class="profile-section">
+        <div class="profile-section-title">Activity level</div>
+        <select class="profile-select" id="prof-activity">
+          <option value="">Select your activity level</option>
+          <option value="sedentary">Sedentary (desk job, no exercise)</option>
+          <option value="light">Lightly active (1-2 workouts/week)</option>
+          <option value="moderate">Moderately active (3-4 workouts/week)</option>
+          <option value="very">Very active (5+ workouts/week)</option>
+          <option value="athlete">Athlete (2x/day training)</option>
+        </select>
+      </div>
+
+      <div class="profile-section">
+        <button class="profile-save-btn" onclick="saveProfile()">Save profile</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end .app -->
+
+<script>
+
+// ── CONFIG (paste your keys here) ──
+const CONFIG = {
+  YOUTUBE_API_KEY: 'AIzaSyAAqS2DUE01818XQM3DHPtjjIMFcyA2Xhw',
+  NUTRITIONIX_APP_ID: 'YOUR_NX_APP_ID',
+  NUTRITIONIX_APP_KEY: 'YOUR_NX_APP_KEY',
+};
+
+// ── MOCK DATA ──
+const MOCK_REELS = [
+  { id:'r1', category:'Fitness', tag:'WORKOUT',
+    title:'5 exercises every Indian man should do daily',
+    channel:'Gaurav Taneja · Flying Beast', views:'9.2M subs',
+    bg:'linear-gradient(160deg,#0d1520,#151020)', emoji:'💪',
+    url:'https://www.youtube.com/shorts/5qgHuQMOlhE',
+    thumb:'https://img.youtube.com/vi/5qgHuQMOlhE/mqdefault.jpg',
+    summary:['Core strength is the foundation — planks beat crunches every time','Compound movements like squats and deadlifts trigger more testosterone than isolation','Rest 48 hours between training the same muscle group for maximum growth'] },
+  { id:'r2', category:'Nutrition', tag:'NUTRITION',
+    title:'High protein Indian breakfast under ₹50',
+    channel:'Fit Tuber', views:'7.1M subs',
+    bg:'linear-gradient(160deg,#0d1a10,#0d1520)', emoji:'🥗',
+    url:'https://www.youtube.com/shorts/KgMjDaONdIE',
+    thumb:'https://img.youtube.com/vi/KgMjDaONdIE/mqdefault.jpg',
+    summary:['Paneer, eggs, and curd are your cheapest high-protein staples in India','Besan chilla with curd gives you 22g protein for under ₹30','Skip the expensive protein bars — whole foods absorb better'] },
+  { id:'r3', category:'Wellness', tag:'WELLNESS',
+    title:'Morning routine that changed my life — 5 minutes only',
+    channel:'BeerBiceps · Ranveer Allahbadia', views:'4.2M subs',
+    bg:'linear-gradient(160deg,#1a0d10,#100d1a)', emoji:'🌅',
+    url:'https://www.youtube.com/shorts/LpWvqBiML7E',
+    thumb:'https://img.youtube.com/vi/LpWvqBiML7E/mqdefault.jpg',
+    summary:['Sunlight in first 30 minutes sets your circadian rhythm for the entire day','Delay caffeine 90 minutes after waking — lets natural cortisol peak first','5 minutes of breathwork reduces morning cortisol spike by up to 23%'] },
+  { id:'r4', category:'Fitness', tag:'WORKOUT',
+    title:'Build chest at home — no equipment needed',
+    channel:'Guru Mann Fitness', views:'6.8M subs',
+    bg:'linear-gradient(160deg,#0a0d1a,#0d1a0d)', emoji:'🏋️',
+    url:'https://www.youtube.com/shorts/j9Uvh7RRnkE',
+    thumb:'https://img.youtube.com/vi/j9Uvh7RRnkE/mqdefault.jpg',
+    summary:['Push-up variations can fully replace the bench press for chest development','Wide grip hits outer chest, narrow grip isolates triceps and inner chest','Progressive overload at home: slow the negative to 4 seconds per rep'] },
+  { id:'r5', category:'Nutrition', tag:'NUTRITION',
+    title:'Is your whey protein fake? Test it right now',
+    channel:'Gaurav Taneja', views:'9.2M subs',
+    bg:'linear-gradient(160deg,#1a0d0a,#100d1a)', emoji:'🧪',
+    url:'https://www.youtube.com/shorts/S7pBm5zVqUA',
+    thumb:'https://img.youtube.com/vi/S7pBm5zVqUA/mqdefault.jpg',
+    summary:['Foam test: shake with water — real whey foams, fake whey stays flat','Check for Informed Sport or Labdoor certification on the label','MuscleBlaze, Optimum Nutrition, and MyProtein are consistently tested clean in India'] },
+  { id:'r6', category:'Wellness', tag:'WELLNESS',
+    title:'Cold shower benefits — testosterone and recovery science',
+    channel:'Jeet Selal Aesthetics', views:'3.1M subs',
+    bg:'linear-gradient(160deg,#0a1a1a,#0d0d1a)', emoji:'🚿',
+    url:'https://www.youtube.com/shorts/nVMTFTyZpDY',
+    thumb:'https://img.youtube.com/vi/nVMTFTyZpDY/mqdefault.jpg',
+    summary:['Cold exposure raises norepinephrine by 300% — the focus and alertness neurotransmitter','Start with 30 seconds, build to 2 minutes over 2 weeks','Best time: morning before workout, NOT immediately after — wait 4 hours post-training'] },
+];
+
+const EVENTS_DATA = [
+  { id:'ev1', month:'APR', day:'26', name:"Men's Yoga & Breathwork", loc:'Lajpat Nagar', time:'7:00 AM', going:32, type:'wellness', emoji:'🧘' },
+  { id:'ev2', month:'APR', day:'28', name:'Calisthenics Workshop', loc:'Hauz Khas Village', time:'6:00 PM', going:47, type:'fitness', emoji:'💪' },
+  { id:'ev3', month:'MAY', day:'3',  name:'Nutrition Masterclass', loc:'Connaught Place', time:'10:00 AM', going:89, type:'nutrition', emoji:'🥗' },
+  { id:'ev4', month:'MAY', day:'10', name:'5K Morning Run Club', loc:'Lodhi Garden', time:'6:30 AM', going:124, type:'fitness', emoji:'🏃' },
+];
+
+const LEADERBOARD = [
+  { rank:1, name:'Arjun S.', xp:2840, streak:'14 days', bg:'#0f1a12', fg:'#6dba4a' },
+  { rank:2, name:'Rohit M.', xp:2650, streak:'11 days', bg:'#1a1608', fg:'#c8a435' },
+  { rank:3, name:'Karan P.', xp:2420, streak:'9 days', bg:'#1a0c0c', fg:'#b07040' },
+  { rank:4, name:'Ujjwal', xp:1680, streak:'7 days', bg:'#150c0f', fg:'#c41e3a', isYou:true },
+  { rank:5, name:'Dev A.', xp:1540, streak:'5 days', bg:'#111116', fg:'#6b7280' },
+];
+
+const CHALLENGES = [
+  { id:'c1', name:'100 push-ups this week', xp:'+100 XP', meta:'Ends Sunday · Fitness', pct:68, participants:847 },
+  { id:'c2', name:'Log every meal for 7 days straight', xp:'+80 XP', meta:'Ends Sunday · Nutrition', pct:45, participants:523 },
+  { id:'c3', name:'Sleep 7+ hours for 5 nights', xp:'+60 XP', meta:'Ends Sunday · Wellness', pct:30, participants:312 },
+];
+
+const BADGES = [
+  { icon:'🔥', name:'Week Warrior', earned:true },
+  { icon:'💪', name:'First PR', earned:true },
+  { icon:'🥗', name:'Clean Eater', earned:true },
+  { icon:'🌅', name:'Early Riser', earned:true },
+  { icon:'🏃', name:'10K Club', earned:false },
+  { icon:'⚡', name:'30-Day Streak', earned:false },
+  { icon:'🧘', name:'Zen Master', earned:false },
+  { icon:'🏆', name:'Top 3', earned:false },
+];
+
+const MACROS = [
+  { label:'Protein', val:115, goal:150, unit:'g', color:'#c41e3a', pct:77 },
+  { label:'Carbs', val:210, goal:250, unit:'g', color:'#b8964a', pct:84 },
+  { label:'Fats', val:52, goal:70, unit:'g', color:'#8892a4', pct:74 },
+];
+
+const MEALS = [
+  { emoji:'🍳', name:'Eggs & oats', time:'8:30 AM', cal:340, protein:22 },
+  { emoji:'🍗', name:'Chicken rice bowl', time:'1:00 PM', cal:580, protein:45 },
+  { emoji:'🥤', name:'Whey protein shake', time:'4:00 PM', cal:160, protein:30 },
+  { emoji:'🥗', name:'Dal & roti', time:'7:30 PM', cal:420, protein:18 },
+];
+
+const SUPPLEMENTS = [
+  { name:'Creatine monohydrate', time:'Post-workout' },
+  { name:'Multivitamin', time:'With breakfast' },
+  { name:'Omega-3 fish oil', time:'With dinner' },
+  { name:'Vitamin D3', time:'With breakfast' },
+];
+
+const WEEK_PROTEIN = [88, 102, 95, 115, 78, 110, 115];
+const WEEK_DAYS = ['M','T','W','T','F','S','S'];
+
+const AI_CHIPS = [
+  '💪 Build me a 4-week plan',
+  '🥗 Best post-workout meals',
+  '😴 Fix my sleep quality',
+  '📊 Why has my progress stalled?',
+  '🧪 Is creatine safe daily?',
+];
+
+const COACH_MODES = ['Fitness','Nutrition','Sleep','Men\'s Health'];
+
+const FOLLOWUPS = {
+  'Fitness': ['How long to rest between sets?', 'Best time to train?'],
+  'Nutrition': ['What about intermittent fasting?', 'How much protein exactly?'],
+  'Sleep': ['Should I nap?', 'Best sleep supplements?'],
+  "Men's Health": ['What affects testosterone?', 'Signs of low T?'],
+};
+
+const PLAYLISTS = [
+  { icon:'🌅', name:'Morning Routine', count:'4 reels' },
+  { icon:'💪', name:'Workout Tips', count:'8 reels' },
+  { icon:'🥗', name:'Nutrition', count:'6 reels' },
+  { icon:'🧘', name:'Recovery', count:'3 reels' },
+];
+
+// ── STATE ──
+let xp = 680, streak = 7;
+let currentTab = 'home';
+let reelIdx = 0, reelFilter = 'All';
+let liked = new Set(), saved = new Set();
+let touchY0 = 0;
+let aiHistory = [];
+let REELS = [...MOCK_REELS];
+let joinedEvents = new Set();
+let joinedChallenges = new Set();
+let waterGlasses = 3;
+let suppChecked = new Set();
+let coachMode = 'Fitness';
+let isListening = false;
+let rsvpTarget = null;
+let reelProgress = 0;
+let progressTimer = null;
+let selectedMood = null;
+
+// ── INIT ──
+// ── DAILY ARTICLES ──
+const ARTICLES = [
+  {
+    id:'a1', category:'Fitness', emoji:'💪',
+    bg:'linear-gradient(135deg,#1a0a20,#0a1020)',
+    title:'5 compound lifts every man needs in his routine',
+    author:'RxMen Health', readTime:'3 min',
+    body:`Compound movements — squats, deadlifts, bench press, overhead press, and rows — recruit multiple muscle groups simultaneously, triggering more testosterone release than isolation exercises.\n\nSquats are the king of lower body strength. They activate quads, hamstrings, glutes and core all at once. Aim for 3 sets of 8-10 reps with progressive overload each week.\n\nDeadlifts build the posterior chain — the muscles running from your heels to your neck — which are critical for posture and back health. Start light, master form first.\n\nThe overhead press is the most underrated upper body builder. It hits your shoulders, traps and triceps while requiring serious core stability.`,
+  },
+  {
+    id:'a2', category:'Nutrition', emoji:'🥗',
+    bg:'linear-gradient(135deg,#0a1a10,#0a1020)',
+    title:'How much protein do Indian men actually need?',
+    author:'RxMen Nutrition', readTime:'4 min',
+    body:`The science is clear: most Indian men are significantly under-eating protein. The RDA suggests 0.8g per kg bodyweight — but that's the minimum to avoid deficiency, not the optimal amount for muscle building.\n\nFor an active man looking to build or maintain muscle, aim for 1.6–2.2g per kg of bodyweight. For a 70kg man, that's 112–154g of protein daily.\n\nBest desi sources: 100g chicken breast = 31g protein. One egg = 6g. 100g paneer = 18g. 200ml curd = 7g. Dal (one bowl) = 9g. Combining dal with roti gives you a complete amino acid profile.\n\nTiming matters less than total daily intake — but having protein within 2 hours post-workout does help muscle protein synthesis.`,
+  },
+  {
+    id:'a3', category:'Wellness', emoji:'🌅',
+    bg:'linear-gradient(135deg,#1a0a10,#100a1a)',
+    title:'The morning routine that boosts testosterone naturally',
+    author:'RxMen Wellness', readTime:'3 min',
+    body:`Your morning sets the hormonal tone for your entire day. Testosterone peaks within the first hour of waking — here's how to maximise it.\n\nGet sunlight in your eyes within 30 minutes of waking. This sets your circadian rhythm and cortisol peak, which drives alertness and indirectly supports testosterone levels throughout the day.\n\nDelay caffeine 90 minutes after waking. Your cortisol is naturally high in the morning — caffeine on top of that spikes anxiety and crashes you harder by noon. Let cortisol peak naturally first.\n\nCold exposure (even 30 seconds of cold at the end of your shower) raises norepinephrine by up to 300%, improving focus and mood for hours. Studies also show modest testosterone benefits from regular cold exposure.`,
+  },
+  {
+    id:'a4', category:'Sleep', emoji:'😴',
+    bg:'linear-gradient(135deg,#0a0a1a,#1a0a10)',
+    title:'Why 6 hours of sleep is destroying your gains',
+    author:'RxMen Health', readTime:'3 min',
+    body:`Sleep is not optional — it is when your body produces 70% of its daily growth hormone. Cutting it short doesn't just make you tired; it actively catabolic (breaks down muscle) and drops testosterone.\n\nStudies show that sleeping 5 hours vs 8 hours for one week reduces testosterone by 10–15%. That's the equivalent of ageing 10 years overnight.\n\nFor optimal recovery: aim for 7-9 hours. Keep a consistent sleep and wake time — even on weekends. Your body runs on a 24-hour clock and inconsistency confuses it.\n\nRoom temperature between 18-20°C is optimal for sleep quality. Keep your phone outside the bedroom — blue light suppresses melatonin for up to 3 hours after exposure.`,
+  },
+  {
+    id:'a5', category:'Mental Health', emoji:'🧠',
+    bg:'linear-gradient(135deg,#0a1020,#1a0a1a)',
+    title:'Stress is silently lowering your testosterone',
+    author:'RxMen Wellness', readTime:'4 min',
+    body:`Cortisol and testosterone are inversely related — when one goes up, the other goes down. Chronic stress keeps cortisol chronically elevated, which directly suppresses testosterone production.\n\nThe signs of stress-related low T: poor sleep, low energy despite sleeping enough, reduced motivation, difficulty building muscle even with good training and nutrition.\n\nThe fix isn't complicated: 10 minutes of breathwork (4-7-8 breathing or box breathing) daily has been shown to reduce cortisol by 20-30% in clinical studies. Exercise is paradoxically the best stress reliever — even a 20-minute walk drops cortisol measurably.\n\nSocial connection matters too. Isolation raises cortisol. Spending time with people you trust — even 30 minutes — has documented cortisol-lowering effects.`,
+  },
+  {
+    id:'a6', category:'Fitness', emoji:'🏃',
+    bg:'linear-gradient(135deg,#0a1a1a,#0a0a1a)',
+    title:'Cardio vs weights: what Indian men get wrong',
+    author:'RxMen Fitness', readTime:'3 min',
+    body:`The classic debate — but the answer is simpler than you think. Both are essential, and the order matters.\n\nDoing cardio before weights depletes glycogen (your muscle fuel), reducing strength performance by up to 15%. Do weights first, cardio after — or on separate days.\n\nZone 2 cardio (conversational pace, 30-45 min, 3x/week) is the most evidence-backed form for heart health, fat oxidation and longevity. This is not the breathless sprint most Indian men default to.\n\nHIIT 1-2x per week is excellent for metabolic conditioning and time efficiency. But more than that increases cortisol and impairs recovery.\n\nThe optimal split for most Indian men: 3 weight sessions + 2 zone 2 cardio sessions per week. Everything else is bonus.`,
+  },
+];
+
+let articlesLoaded = false;
+
+function buildArticles() {
+  const strip = document.getElementById('articles-strip');
+  if (!strip) return;
+  strip.innerHTML = ARTICLES.map(a => `
+    <div class="article-card" onclick="openArticle('${a.id}')">
+      <div class="article-card-img" style="background:${a.bg}">
+        <div>${a.emoji}</div>
+      </div>
+      <div class="article-card-body">
+        <div class="article-cat">${a.category}</div>
+        <div class="article-title">${a.title}</div>
+        <div class="article-meta">
+          <span>${a.author}</span>
+          <span class="article-read">${a.readTime}</span>
+        </div>
+      </div>
+    </div>`).join('');
+  articlesLoaded = true;
+}
+
+function loadMoreArticles() {
+  // Shuffle and redisplay
+  ARTICLES.sort(() => Math.random() - 0.5);
+  buildArticles();
+  toast('Articles refreshed');
+}
+
+// Article modal CSS and viewer
+function openArticle(id) {
+  const a = ARTICLES.find(x => x.id === id);
+  if (!a) return;
+  addXP(10, 'Read · +10 XP');
+
+  // Create full-screen article modal
+  const existing = document.getElementById('article-modal');
+  if (existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'article-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:var(--navy);z-index:500;display:flex;flex-direction:column;overflow:hidden;max-width:430px;margin:0 auto;animation:fadeIn 0.2s ease;';
+  modal.innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--border);flex-shrink:0;">
+      <div onclick="closeArticle()" style="width:34px;height:34px;border-radius:8px;background:var(--navy3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;">←</div>
+      <div style="flex:1;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:0.7px;text-transform:uppercase;color:var(--crimson2);">${a.category}</div>
+        <div style="font-size:13px;font-weight:600;color:var(--offwhite);">${a.readTime} read</div>
+      </div>
+      <div onclick="switchTo('ai');closeArticle();setTimeout(()=>sendAIMsg('Tell me more about: ${a.title.replace(/'/g,"\'")}'),300)" style="width:34px;height:34px;border-radius:8px;background:rgba(196,30,58,0.1);border:1px solid rgba(196,30,58,0.2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;">🩺</div>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:24px 22px;">
+      <div style="font-size:36px;margin-bottom:16px;">${a.emoji}</div>
+      <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;line-height:1.35;color:var(--offwhite);margin-bottom:8px;">${a.title}</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:24px;">${a.author} · ${a.readTime} read</div>
+      <div style="font-size:14px;line-height:1.8;color:var(--text);">${a.body.replace(/\n\n/g,'</p><p style="margin-top:14px;">').replace(/^/,'<p>').replace(/$/,'</p>')}</div>
+      <div style="margin-top:28px;padding:16px;background:var(--navy3);border-radius:var(--r);border:1px solid var(--border);">
+        <div style="font-size:12px;color:var(--muted2);margin-bottom:8px;">Want to learn more?</div>
+        <div onclick="switchTo('ai');closeArticle();setTimeout(()=>sendAIMsg('I just read about ${a.title.replace(/'/g,"\'")}. Give me a personalised action plan I can start today.'),300)" style="padding:11px;background:var(--crimson);border-radius:var(--r3);text-align:center;cursor:pointer;font-size:13px;font-weight:600;color:#fff;">Ask RxAI for a personalised plan 🩺</div>
+      </div>
+    </div>`;
+  document.getElementById('app').appendChild(modal);
+}
+
+function closeArticle() {
+  const m = document.getElementById('article-modal');
+  if (m) m.remove();
+}
+
+// ── LOCATION DETECTION ──
+let userCity = 'your city';
+let userCityWeek = 'Week 3';
+
+async function detectLocation() {
+  try {
+    // Use IP-based geolocation (no permission needed)
+    const res = await fetch('https://ipapi.co/json/');
+    const data = await res.json();
+    if (data.city) {
+      userCity = data.city;
+      applyLocationToUI(userCity);
+    }
+  } catch(e) {
+    // Fallback: try browser geolocation
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(async pos => {
+        try {
+          const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json`);
+          const d = await r.json();
+          userCity = d.address?.city || d.address?.town || d.address?.state_district || 'your city';
+          applyLocationToUI(userCity);
+        } catch(e2) {}
+      }, () => {});
+    }
+  }
+}
+
+function applyLocationToUI(city) {
+  // Update all location labels
+  const cityLabel = document.getElementById('city-label');
+  if (cityLabel) cityLabel.textContent = city + ' · ' + userCityWeek;
+
+  const homeCityEl = document.getElementById('home-city');
+  if (homeCityEl) homeCityEl.textContent = city;
+
+  const eventsCityEl = document.getElementById('events-city');
+  if (eventsCityEl) eventsCityEl.textContent = city;
+
+  // Update panel city display
+  saveUser({ city });
+
+  // Update leaderboard title
+  const lbHdr = document.querySelector('.lb-hdr-t');
+  if (lbHdr) lbHdr.textContent = 'Top in ' + city;
+
+  // Update EVENTS_DATA with city-appropriate locations
+  const cityLocations = {
+    'Bengaluru': [
+      { id:'ev1', month:'APR', day:'26', name:"Men's Yoga & Breathwork", loc:'Indiranagar · 7 AM', going:28, type:'wellness', emoji:'🧘' },
+      { id:'ev2', month:'APR', day:'28', name:'Calisthenics Workshop', loc:'Koramangala · 6 PM', going:51, type:'fitness', emoji:'💪' },
+      { id:'ev3', month:'MAY', day:'3',  name:'Nutrition Masterclass', loc:'MG Road · 10 AM', going:74, type:'nutrition', emoji:'🥗' },
+      { id:'ev4', month:'MAY', day:'10', name:'5K Morning Run Club', loc:'Cubbon Park · 6:30 AM', going:118, type:'fitness', emoji:'🏃' },
+    ],
+    'Mumbai': [
+      { id:'ev1', month:'APR', day:'26', name:"Men's Yoga & Breathwork", loc:'Bandra · 7 AM', going:45, type:'wellness', emoji:'🧘' },
+      { id:'ev2', month:'APR', day:'28', name:'Strength Training Workshop', loc:'Andheri · 6 PM', going:62, type:'fitness', emoji:'💪' },
+      { id:'ev3', month:'MAY', day:'3',  name:'Nutrition Masterclass', loc:'Lower Parel · 10 AM', going:89, type:'nutrition', emoji:'🥗' },
+      { id:'ev4', month:'MAY', day:'10', name:'5K Morning Run Club', loc:'Marine Drive · 6 AM', going:203, type:'fitness', emoji:'🏃' },
+    ],
+    'Delhi': [
+      { id:'ev1', month:'APR', day:'26', name:"Men's Yoga & Breathwork", loc:'Lajpat Nagar · 7 AM', going:32, type:'wellness', emoji:'🧘' },
+      { id:'ev2', month:'APR', day:'28', name:'Calisthenics Workshop', loc:'Hauz Khas · 6 PM', going:47, type:'fitness', emoji:'💪' },
+      { id:'ev3', month:'MAY', day:'3',  name:'Nutrition Masterclass', loc:'Connaught Place · 10 AM', going:89, type:'nutrition', emoji:'🥗' },
+      { id:'ev4', month:'MAY', day:'10', name:'5K Morning Run Club', loc:'Lodhi Garden · 6:30 AM', going:124, type:'fitness', emoji:'🏃' },
+    ],
+  };
+
+  // Find best matching city
+  const matchedCity = Object.keys(cityLocations).find(c => city.toLowerCase().includes(c.toLowerCase())) || null;
+  if (matchedCity) {
+    // Update global EVENTS_DATA
+    window.EVENTS_DATA = cityLocations[matchedCity];
+  } else {
+    // Generic events for unknown cities
+    window.EVENTS_DATA = [
+      { id:'ev1', month:'APR', day:'26', name:"Men's Yoga & Breathwork", loc:city+' · 7 AM', going:18, type:'wellness', emoji:'🧘' },
+      { id:'ev2', month:'APR', day:'28', name:'Fitness Workshop', loc:city+' · 6 PM', going:34, type:'fitness', emoji:'💪' },
+      { id:'ev3', month:'MAY', day:'3',  name:'Nutrition Talk', loc:city+' · 10 AM', going:27, type:'nutrition', emoji:'🥗' },
+      { id:'ev4', month:'MAY', day:'10', name:'Morning Run Club', loc:city+' · 6:30 AM', going:56, type:'fitness', emoji:'🏃' },
+    ];
+  }
+
+  // Rebuild event lists
+  const homeEvts = document.getElementById('home-events');
+  if (homeEvts) homeEvts.innerHTML = (window.EVENTS_DATA||EVENTS_DATA).slice(0,2).map(ev=>evCardHTML(ev)).join('');
+  const commEvts = document.getElementById('comm-events');
+  if (commEvts) commEvts.innerHTML = (window.EVENTS_DATA||EVENTS_DATA).map(ev=>evCardHTML(ev)).join('');
+}
+
+// ── PROFILE FUNCTIONS ──
+function openProfile() {
+  closePanel();
+  // Pre-fill with current user data
+  setTimeout(() => {
+    const fields = {
+      'prof-name': currentUser.name,
+      'prof-age': currentUser.age,
+      'prof-city': currentUser.city,
+      'prof-weight': currentUser.weight,
+      'prof-height': currentUser.height,
+    };
+    Object.entries(fields).forEach(([id, val]) => {
+      const el = document.getElementById(id);
+      if (el && val) el.value = val;
+    });
+    // Restore goal selection
+    if (currentUser.goal) {
+      document.querySelectorAll('.goal-chip').forEach(c => {
+        c.classList.toggle('selected', c.dataset.goal === currentUser.goal);
+      });
+    }
+    // Update stats
+    const streakEl = document.getElementById('prof-streak');
+    if (streakEl) streakEl.textContent = streak;
+    const xpEl = document.getElementById('prof-xp');
+    if (xpEl) xpEl.textContent = xp;
+    document.getElementById('profile-screen').classList.add('open');
+  }, 300);
+}
+
+function closeProfile() {
+  document.getElementById('profile-screen').classList.remove('open');
+}
+
+function selectGoal(el) {
+  document.querySelectorAll('.goal-chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function saveProfile() {
+  const name = document.getElementById('prof-name').value.trim();
+  const age = document.getElementById('prof-age').value;
+  const city = document.getElementById('prof-city').value.trim();
+  const weight = document.getElementById('prof-weight').value;
+  const height = document.getElementById('prof-height').value;
+  const activity = document.getElementById('prof-activity').value;
+  const goalEl = document.querySelector('.goal-chip.selected');
+  const goal = goalEl ? goalEl.dataset.goal : '';
+
+  if (!name) { toast('Please enter your name'); return; }
+
+  saveUser({ name, age, city, weight, height, activity, goal });
+
+  // Update avatar initials
+  const initials = name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  const bigAvi = document.getElementById('profile-avatar-initials');
+  if (bigAvi) bigAvi.textContent = initials;
+
+  // If city changed, update location
+  if (city && city !== userCity) {
+    userCity = city;
+    applyLocationToUI(city);
+  }
+
+  // Update AI context with new user data
+  toast('Profile saved ✓');
+  addXP(10, 'Profile updated · +10 XP');
+  setTimeout(() => closeProfile(), 800);
+}
+
+async function init() {
+  setGreeting();
+  buildArticles();
+  detectLocation();
+  buildStreakCal();
+  buildHomeStats();
+  buildHomeEvents();
+  buildFilterRow();
+  buildAI();
+  buildCommunity();
+  buildNutrition();
+  REELS = await fetchYouTube();
+  buildHomeReels();
+  renderReels();
+}
+
+function setGreeting() {
+  const h = new Date().getHours();
+  document.getElementById('greet-time').textContent = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+}
+
+// ── MOOD ──
+const MOODS = [
+  { emoji:'😴', label:'Tired' },
+  { emoji:'😐', label:'Okay' },
+  { emoji:'🙂', label:'Good' },
+  { emoji:'💪', label:'Strong' },
+  { emoji:'🔥', label:'On fire' },
+];
+function buildMood() {
+  document.getElementById('mood-row').innerHTML = MOODS.map((m,i) => `
+    <div class="mood-btn" id="mood-${i}" onclick="selectMood(${i},'${m.label}')">
+      <div class="mood-emoji">${m.emoji}</div>
+      <div class="mood-text">${m.label}</div>
+    </div>`).join('');
+}
+function selectMood(i, label) {
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('mood-' + i).classList.add('selected');
+  selectedMood = label;
+  addXP(5, '5 XP');
+  toast('Mood logged: ' + label);
+  setTimeout(() => {
+    switchTo('ai');
+    setTimeout(() => sendAIMsg(`I'm feeling ${label.toLowerCase()} today. What should I focus on for my health today?`), 300);
+  }, 800);
+}
+
+// ── STREAK CALENDAR ──
+function buildStreakCal() {
+  const days = ['M','T','W','T','F','S','S'];
+  document.getElementById('streak-dots').innerHTML = days.map((d, i) => {
+    const cls = i < 6 ? 'done' : 'today';
+    return `<div class="s-dot ${cls}">${d}</div>`;
+  }).join('');
+}
+
+// ── HOME ──
+function buildHomeStats() {
+  document.getElementById('home-stats').innerHTML = `
+    <div class="stat"><div class="stat-n">4</div><div class="stat-l">Workouts</div><div class="stat-sub" style="color:var(--crimson2)">↑ 1 this week</div></div>
+    <div class="stat"><div class="stat-n">1,840</div><div class="stat-l">Kcal</div><div class="stat-sub" style="color:var(--gold)">460 left</div></div>
+    <div class="stat"><div class="stat-n">${streak}</div><div class="stat-l">Streak</div><div class="stat-sub" style="color:var(--gold2)">Best</div></div>`;
+}
+
+function buildHomeReels() {
+  document.getElementById('home-reels').innerHTML = REELS.slice(0,5).map(r => `
+    <div class="rp-card" onclick="goReel('${r.id}')">
+      <div class="rp-img" style="background:${r.bg};overflow:hidden;">
+        ${r.thumb ? `<img src="${r.thumb}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" onerror="this.remove()">` : `<div class="rp-emoji">${r.emoji}</div>`}
+        <div class="rp-grad"></div>
+        <div class="rp-cat">${r.tag}</div>
+        <div class="rp-play">▶</div>
+      </div>
+      <div class="rp-title">${r.title.slice(0,40)}${r.title.length>40?'…':''}</div>
+      <div class="rp-meta">${r.channel}</div>
+    </div>`).join('');
+}
+
+function buildHomeEvents() {
+  document.getElementById('home-events').innerHTML = EVENTS_DATA.slice(0,2).map(ev => evCardHTML(ev)).join('');
+}
+
+function evCardHTML(ev) {
+  const isJoined = joinedEvents.has(ev.id);
+  return `
+  <div class="ev-card">
+    <div class="ev-card-top">
+      <div class="ev-date-box"><div class="ev-mon">${ev.month}</div><div class="ev-day">${ev.day}</div></div>
+      <div class="ev-info">
+        <div class="ev-name">${ev.name}</div>
+        <div class="ev-meta">📍 ${ev.loc} · ${ev.time}<span class="ev-going" id="ev-going-${ev.id}">${isJoined ? ev.going+1 : ev.going} going</span></div>
+      </div>
+    </div>
+    <div class="ev-actions">
+      <div class="ev-join-btn ${isJoined?'joined':''}" id="ev-btn-${ev.id}" onclick="showRSVP('${ev.id}')">
+        ${isJoined ? '✓ Going' : 'Join event'}
+      </div>
+      <div class="ev-cal-btn" onclick="addToCalendar('${ev.name}')">📅</div>
+    </div>
+  </div>`;
+}
+
+// ── YOUTUBE ──
+async function fetchYouTube() {
+  try {
+    // Call our own serverless /api/shorts endpoint - no CORS issues
+    const res = await fetch('/api/shorts?filter=all&max=10');
+    if (!res.ok) throw new Error('API error ' + res.status);
+    const shorts = await res.json();
+
+    if (!Array.isArray(shorts) || shorts.length === 0) {
+      console.warn('No shorts returned, using mock data');
+      return MOCK_REELS;
+    }
+
+    // Map API response to our reel data shape
+    return shorts.map((v, i) => {
+      const mock = MOCK_REELS[i % MOCK_REELS.length];
+      // Determine category from title keywords
+      const title = v.title.toLowerCase();
+      let category = 'Fitness', tag = 'WORKOUT';
+      if (title.match(/nutri|food|meal|protein|diet|eat|calori/)) { category = 'Nutrition'; tag = 'NUTRITION'; }
+      else if (title.match(/wellnes|sleep|stress|mental|breath|meditat|recover/)) { category = 'Wellness'; tag = 'WELLNESS'; }
+
+      return {
+        id:      v.id,
+        category, tag,
+        title:   v.title,
+        channel: v.channel,
+        bg:      mock.bg,
+        emoji:   mock.emoji,
+        thumb:   v.thumb || null,
+        embedUrl: v.embedUrl,
+        url:     v.url,
+        summary: mock.summary,
+        views:   v.views > 0 ? formatNum(v.views) + ' views' : '',
+      };
+    });
+  } catch(e) {
+    console.warn('Shorts API failed, using mock data:', e);
+    return MOCK_REELS;
+  }
+}
+
+// Fetch by filter category for the filter chips
+async function fetchByFilter(filter) {
+  try {
+    const map = { 'All': 'all', 'Fitness': 'fitness', 'Nutrition': 'nutrition', 'Wellness': 'wellness' };
+    const res = await fetch('/api/shorts?filter=' + (map[filter] || 'all') + '&max=8');
+    if (!res.ok) throw new Error('API error');
+    const shorts = await res.json();
+    if (!Array.isArray(shorts) || shorts.length === 0) return null;
+    return shorts.map((v, i) => {
+      const mock = MOCK_REELS[i % MOCK_REELS.length];
+      const title = v.title.toLowerCase();
+      let category = filter === 'All' ? 'Fitness' : filter;
+      let tag = { Fitness:'WORKOUT', Nutrition:'NUTRITION', Wellness:'WELLNESS' }[category] || 'WORKOUT';
+      return { id:v.id, category, tag, title:v.title, channel:v.channel, bg:mock.bg, emoji:mock.emoji, thumb:v.thumb||null, embedUrl:v.embedUrl, url:v.url, summary:mock.summary, views:v.views>0?formatNum(v.views)+' views':'' };
+    });
+  } catch(e) { return null; }
+}
+
+// ── REELS ──
+function buildFilterRow() {
+  document.getElementById('filter-row').innerHTML = ['All','Fitness','Nutrition','Wellness'].map(f =>
+    `<div class="fchip ${f===reelFilter?'on':''}" onclick="setFilter('${f}')">${f}</div>`).join('');
+}
+
+function filtered() {
+  return reelFilter==='All' ? REELS : REELS.filter(r=>r.category===reelFilter);
+}
+
+function renderReels() {
+  const list = filtered();
+  if (reelIdx >= list.length) reelIdx = 0;
+  clearInterval(progressTimer);
+  reelProgress = 0;
+
+  document.getElementById('reel-stack').innerHTML = list.map((r,i) => {
+    const pos = i<reelIdx ? 'above' : i>reelIdx ? 'below' : '';
+    const iL = liked.has(r.id), iS = saved.has(r.id);
+    return `
+    <div class="reel-item ${pos}" ontouchstart="ts(event)" ontouchend="te(event)" onclick="openDrawer('${r.id}')">
+      <div class="ri-bg" style="background:${r.bg};position:relative;">
+        ${r.thumb ? `<img src="${r.thumb}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;" onerror="this.remove()">` : `<div class="ri-emoji-bg">${r.emoji}</div>`}
+      </div>
+      <div class="ri-vignette"></div>
+      <div class="ri-top-grad"></div>
+      <div class="ri-side">
+        <div class="ri-action ${iL?'liked':''}" onclick="event.stopPropagation();toggleLike('${r.id}')">
+          <div class="ri-icon">${iL?'❤️':'🤍'}</div><div class="ri-lbl">Like</div>
+        </div>
+        <div class="ri-action ${iS?'saved':''}" onclick="event.stopPropagation();openPLDrawer('${r.id}')">
+          <div class="ri-icon">${iS?'🔖':'🏷️'}</div><div class="ri-lbl">Save</div>
+        </div>
+        <div class="ri-action" onclick="event.stopPropagation();shareReel('${r.id}')">
+          <div class="ri-icon">↗</div><div class="ri-lbl">Share</div>
+        </div>
+        <div class="ri-action" onclick="event.stopPropagation();showSummary('${r.id}')">
+          <div class="ri-icon">⚡</div><div class="ri-lbl">Summary</div>
+        </div>
+        <div class="ri-action" onclick="event.stopPropagation();askReel('${r.id}')">
+          <div class="ri-icon">🩺</div><div class="ri-lbl">Ask AI</div>
+        </div>
+      </div>
+      <div class="ri-info">
+        <div class="ri-tag">${r.tag}</div>
+        <div class="ri-title">${r.title}</div>
+        <div class="ri-src"><div class="ri-src-dot"></div>${r.channel}</div>
+      </div>
+      <div class="reel-progress-bar"><div class="reel-progress-fill" id="rp-fill" style="width:0%"></div></div>
+      <div style="position:absolute;right:50%;transform:translateX(50%);top:56px;display:flex;flex-direction:column;align-items:center;gap:4px;opacity:0.35;pointer-events:none;">
+        <div style="font-size:11px;color:#fff;letter-spacing:0.5px;">scroll to explore</div>
+      </div>
+    </div>\``;
+  }).join('');
+
+  document.getElementById('r-dots').innerHTML = list.map((_,i) =>
+    `<div class="r-dot ${i===reelIdx?'on':''}"></div>`).join('');
+  document.querySelectorAll('.fchip').forEach(c => c.classList.toggle('on', c.textContent===reelFilter));
+
+  // Animate progress bar
+  startProgress();
+}
+
+function startProgress() {
+  reelProgress = 0;
+  clearInterval(progressTimer);
+  progressTimer = setInterval(() => {
+    reelProgress += 0.5;
+    const el = document.getElementById('rp-fill');
+    if (el) el.style.width = Math.min(reelProgress, 100) + '%';
+    if (reelProgress >= 100) { clearInterval(progressTimer); addXP(5, null); }
+  }, 150);
+}
+
+async function setFilter(f) {
+  reelFilter = f;
+  reelIdx = 0;
+  // Try to fetch filter-specific content from API
+  const apiData = await fetchByFilter(f);
+  if (apiData) {
+    // Merge into REELS replacing ones of that category
+    const others = REELS.filter(r => f === 'All' ? false : r.category !== f);
+    REELS = f === 'All' ? apiData : [...others, ...apiData];
+  }
+  renderReels();
+}
+function ts(e) { touchY0=e.touches[0].clientY; e.preventDefault(); }
+function te(e) {
+  const d = touchY0-e.changedTouches[0].clientY;
+  if (Math.abs(d)>30) d>0?nextReel():prevReel();
+}
+// Mouse wheel scroll for desktop
+document.addEventListener('wheel', function(e) {
+  if (currentTab !== 'reels') return;
+  e.preventDefault();
+  if (e.deltaY > 0) nextReel();
+  else prevReel();
+}, { passive: false });
+// Also add pointer drag for desktop
+let dragStartY = 0, isDragging = false;
+document.addEventListener('mousedown', function(e) {
+  if (currentTab !== 'reels') { isDragging=false; return; }
+  dragStartY = e.clientY; isDragging = true;
+});
+document.addEventListener('mouseup', function(e) {
+  if (!isDragging || currentTab !== 'reels') return;
+  isDragging = false;
+  const d = dragStartY - e.clientY;
+  if (Math.abs(d) > 40) d > 0 ? nextReel() : prevReel();
+});
+function nextReel() {
+  const l=filtered();
+  if (reelIdx<l.length-1){reelIdx++;renderReels();addXP(5,null);}
+  else toast("You're all caught up — more content loading soon");
+}
+function prevReel(){if(reelIdx>0){reelIdx--;renderReels();}}
+
+document.addEventListener('keydown',e=>{
+  if(currentTab!=='reels')return;
+  if(e.key==='ArrowDown')nextReel();
+  if(e.key==='ArrowUp')prevReel();
+});
+
+function goReel(id){
+  const idx=REELS.findIndex(r=>r.id===id);
+  if(idx>=0){reelFilter='All';reelIdx=idx;}
+  switchTo('reels');
+  setTimeout(renderReels,50);
+}
+
+function openDrawer(id){
+  const r=REELS.find(x=>x.id===id); if(!r)return;
+  addXP(10,null);
+  document.getElementById('drawer-title').textContent=r.title.slice(0,42)+'…';
+  const embedOpt = r.embedUrl ? `
+    <div class="d-opt" onclick="playInline('${id}');closeDrawer()">
+      <div class="d-icon" style="background:rgba(255,0,0,0.15)">▶️</div>
+      <div><div class="d-name">Play Short inline</div><div class="d-sub">Watch right here in the app</div></div>
+      <div class="d-arr">→</div>
+    </div>` : '';
+  document.getElementById('drawer-opts').innerHTML=`
+    ${embedOpt}
+    <div class="d-opt" onclick="openURL('${r.url}')">
+      <div class="d-icon" style="background:rgba(255,0,0,0.08)">↗</div>
+      <div><div class="d-name">Open in YouTube</div><div class="d-sub">${r.channel}</div></div>
+      <div class="d-arr">→</div>
+    </div>
+    <div class="d-opt" onclick="showSummary('${id}');closeDrawer()">
+      <div class="d-icon" style="background:rgba(184,150,74,0.1)">⚡</div>
+      <div><div class="d-name">Speed-read key takeaways</div><div class="d-sub">3 bullet summary</div></div>
+      <div class="d-arr">→</div>
+    </div>
+    <div class="d-opt" onclick="askReel('${id}');closeDrawer()">
+      <div class="d-icon" style="background:rgba(196,30,58,0.1)">🩺</div>
+      <div><div class="d-name">Ask RxAI Coach about this</div><div class="d-sub">Get coaching insights</div></div>
+      <div class="d-arr">→</div>
+    </div>`;
+  document.getElementById('drawer').classList.add('open');
+}
+
+function playInline(id) {
+  const r = REELS.find(x => x.id === id);
+  if (!r || !r.embedUrl) { openURL(r?.url || ''); return; }
+  // Show inline player overlay
+  const stack = document.getElementById('reel-stack');
+  const existing = document.getElementById('inline-player');
+  if (existing) existing.remove();
+  const player = document.createElement('div');
+  player.id = 'inline-player';
+  player.style.cssText = 'position:absolute;inset:0;background:#000;z-index:40;display:flex;flex-direction:column;';
+  player.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:rgba(0,0,0,0.8);">
+      <div style="font-size:12px;color:rgba(255,255,255,0.7);flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">${r.title}</div>
+      <div onclick="document.getElementById('inline-player').remove()" style="width:30px;height:30px;background:rgba(255,255,255,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:#fff;flex-shrink:0;margin-left:10px;">✕</div>
+    </div>
+    <iframe src="${r.embedUrl}" style="flex:1;width:100%;border:none;" allow="accelerometer;autoplay;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>
+    <div style="padding:10px 16px;background:rgba(0,0,0,0.8);display:flex;gap:10px;">
+      <div onclick="openURL('${r.url}')" style="flex:1;padding:10px;background:rgba(255,0,0,0.15);border:1px solid rgba(255,0,0,0.3);border-radius:8px;text-align:center;cursor:pointer;font-size:12px;color:#ff4444;font-weight:600;">Open in YouTube ↗</div>
+      <div onclick="askReel('${id}');document.getElementById('inline-player').remove()" style="flex:1;padding:10px;background:rgba(196,30,58,0.12);border:1px solid rgba(196,30,58,0.3);border-radius:8px;text-align:center;cursor:pointer;font-size:12px;color:var(--crimson2);font-weight:600;">Ask RxAI 🩺</div>
+    </div>`;
+  stack.appendChild(player);
+  addXP(15, 'Watching · +15 XP');
+}
+
+function closeDrawer(e){
+  if(!e||e.target===document.getElementById('drawer'))
+    document.getElementById('drawer').classList.remove('open');
+}
+function openURL(url){closeDrawer();window.open(url,'_blank');}
+
+function showSummary(id){
+  const r=REELS.find(x=>x.id===id); if(!r)return;
+  const panel=document.getElementById('summary-panel');
+  document.getElementById('sum-content').innerHTML=(r.summary||['Key insight 1','Key insight 2','Key insight 3']).map(s=>`
+    <div class="sum-point"><div class="sum-bullet"></div><div>${s}</div></div>`).join('');
+  panel.classList.add('open');
+  addXP(10,'Summary viewed · +10 XP');
+}
+function closeSummary(){document.getElementById('summary-panel').classList.remove('open');}
+
+function openPLDrawer(id){
+  document.getElementById('pl-opts').innerHTML=PLAYLISTS.map(p=>`
+    <div class="pl-opt" onclick="saveToPlaylist('${id}','${p.name}')">
+      <div class="pl-ico">${p.icon}</div>
+      <div><div class="pl-name">${p.name}</div><div class="pl-count">${p.count}</div></div>
+    </div>`).join('');
+  document.getElementById('pl-drawer').classList.add('open');
+}
+function closePLDrawer(e){
+  if(!e||e.target===document.getElementById('pl-drawer'))
+    document.getElementById('pl-drawer').classList.remove('open');
+}
+function saveToPlaylist(id,name){
+  saved.add(id); closePLDrawer();
+  toast('Saved to '+name+' · +5 XP'); addXP(5,null); renderReels();
+}
+
+function toggleLike(id){
+  if(liked.has(id))liked.delete(id);
+  else{liked.add(id);addXP(10,'Liked · +10 XP');}
+  renderReels();
+}
+function shareReel(id){
+  const r=REELS.find(x=>x.id===id);
+  if(navigator.share&&r)navigator.share({title:r.title,url:r.url}).catch(()=>{});
+  toast('Link copied · +5 XP');addXP(5,null);
+}
+function askReel(id){
+  const r=REELS.find(x=>x.id===id);if(!r)return;
+  switchTo('ai');
+  setTimeout(()=>sendAIMsg(`Give me the key takeaways and practical advice from a video titled "${r.title}" by ${r.channel}. What should I apply to my routine?`),300);
+}
+
+// ── AI COACH ──
+function buildAI(){
+  document.getElementById('coach-modes').innerHTML=COACH_MODES.map(m=>
+    `<div class="cm-tab ${m===coachMode?'on':''}" onclick="setCoachMode('${m}')">${m}</div>`).join('');
+  addBotMsg("Hello Ujjwal. I'm your RxAI Coach. Ask me anything about training, nutrition, sleep or men's health. Select a focus mode above to get specialised advice.");
+  document.getElementById('ai-chips').innerHTML=AI_CHIPS.map(c=>
+    `<div class="ai-chip" onclick="sendAIMsg('${c.replace(/'/g,"\\'")}')">${c}</div>`).join('');
+}
+
+function setCoachMode(m){
+  coachMode=m;
+  document.querySelectorAll('.cm-tab').forEach(t=>t.classList.toggle('on',t.textContent===m));
+  toast('Coach mode: '+m);
+  setFollowups(m);
+}
+
+function setFollowups(mode){
+  const row=document.getElementById('followup-row');
+  const chips=FOLLOWUPS[mode]||[];
+  row.innerHTML=chips.map(c=>`<div class="fu-chip" onclick="sendAIMsg('${c}')">${c}</div>`).join('');
+}
+
+function addBotMsg(text, showActions=false){
+  const msgs=document.getElementById('ai-msgs');
+  const wrap=document.createElement('div');
+  const el=document.createElement('div');
+  el.className='msg bot';
+  el.innerHTML=text.replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+  wrap.appendChild(el);
+  if(showActions){
+    const acts=document.createElement('div');
+    acts.className='msg-actions';
+    acts.innerHTML=`<div class="msg-act-btn" onclick="toast('Insight saved to your library')">🔖 Save insight</div><div class="msg-act-btn" onclick="shareInsight()">↗ Share</div>`;
+    wrap.appendChild(acts);
+  }
+  msgs.appendChild(wrap);
+  msgs.scrollTop=99999;
+}
+function addUserMsg(text){
+  const el=document.createElement('div');el.className='msg user';el.textContent=text;
+  document.getElementById('ai-msgs').appendChild(el);
+  document.getElementById('ai-msgs').scrollTop=99999;
+}
+function addLoader(){
+  const el=document.createElement('div');el.className='msg loading';el.id='ai-load';
+  el.innerHTML='<div class="dots"><div class="d"></div><div class="d"></div><div class="d"></div></div>';
+  document.getElementById('ai-msgs').appendChild(el);
+  document.getElementById('ai-msgs').scrollTop=99999;
+  return el;
+}
+
+async function sendAI(){
+  const inp=document.getElementById('ai-input');
+  const txt=inp.value.trim();if(!txt)return;
+  inp.value='';sendAIMsg(txt);
+}
+
+async function sendAIMsg(text){
+  addUserMsg(text);
+  aiHistory.push({role:'user',content:text});
+  const loader=addLoader(); addXP(5,null);
+  const modeContext={
+    'Fitness':'Focus on training, exercise science, workout programming, recovery.',
+    'Nutrition':'Focus on diet, macros, meal planning, Indian food context.',
+    'Sleep':'Focus on sleep quality, circadian rhythm, recovery optimisation.',
+    "Men's Health":"Focus on testosterone, hormones, sexual health, men's wellness.",
+  };
+  try{
+    const systemPrompt = `You are RxAI Coach inside RxMen — India's men's health platform.
+User: ${currentUser.name||'the user'}, based in ${currentUser.city||'India'}, Level 4, 7-day streak, 1,840 kcal consumed today.
+Current coach mode: ${coachMode}. ${modeContext[coachMode]||''}
+Tone: direct, evidence-based, understated. Like a specialist who also trains. No hype. Use Indian context naturally. Use **bold** for key numbers/terms. 3-4 short paragraphs max. For medical issues, advise seeing a doctor.`;
+
+    const res=await fetch('/api/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ messages:aiHistory, system:systemPrompt })
+    });
+    const data=await res.json();loader.remove();
+    const reply=data.content?.map(b=>b.text||'').join('')||'Unable to respond. Try again.';
+    addBotMsg(reply, true);
+    aiHistory.push({role:'assistant',content:reply});
+    setFollowups(coachMode);
+    addXP(20,'Insight unlocked · +20 XP');
+  }catch(e){
+    loader.remove();
+    addBotMsg('Connection issue. Please check your network and try again.');
+  }
+}
+
+// Voice input
+function toggleVoice(){
+  const btn=document.getElementById('voice-btn');
+  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){
+    toast('Voice input not supported in this browser');return;
+  }
+  if(isListening){
+    isListening=false;btn.classList.remove('listening');
+    if(window._recog)window._recog.stop();
+    return;
+  }
+  isListening=true;btn.classList.add('listening');toast('Listening…');
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  const recog=new SR();recog.lang='en-IN';recog.continuous=false;
+  window._recog=recog;
+  recog.onresult=e=>{
+    const txt=e.results[0][0].transcript;
+    document.getElementById('ai-input').value=txt;
+    isListening=false;btn.classList.remove('listening');
+  };
+  recog.onerror=()=>{isListening=false;btn.classList.remove('listening');toast('Voice input failed — try typing');};
+  recog.onend=()=>{isListening=false;btn.classList.remove('listening');};
+  recog.start();
+}
+
+function shareInsight(){toast('Insight copied — ready to share!');}
+
+// ── COMMUNITY ──
+function buildCommunity(){
+  buildLeaderboard();buildFriendComp();buildChallenges();buildBadges();
+  document.getElementById('comm-events').innerHTML=EVENTS_DATA.map(ev=>evCardHTML(ev)).join('');
+}
+
+function buildLeaderboard(){
+  const ranks=['🥇','🥈','🥉','4','5'];
+  const colors=['#FFD700','#C0C0C0','#CD7F32','var(--muted)','var(--muted)'];
+  document.getElementById('lb-card').innerHTML=`
+    <div class="lb-hdr"><div class="lb-hdr-t">Top in Delhi</div><div class="lb-period">Week 3 · Apr 2026</div></div>
+    ${LEADERBOARD.map((u,i)=>`
+    <div class="lb-row ${u.isYou?'you':''}" onclick="${u.isYou?`toast("That's you — keep pushing")`:`toast('${u.name} · ${u.xp.toLocaleString()} XP this week')`}">
+      <div class="lb-rank" style="color:${colors[i]}">${ranks[i]}</div>
+      <div class="lb-avi" style="background:${u.bg};color:${u.fg}">${u.name.slice(0,2).toUpperCase()}</div>
+      <div class="lb-data">
+        <div class="lb-name-row">${u.name}${u.isYou?' <span class="you-tag">YOU</span>':''}</div>
+        <div class="lb-streak">🔥 ${u.streak}</div>
+      </div>
+      <div class="lb-xp-v">${u.xp.toLocaleString()}</div>
+    </div>`).join('')}`;
+}
+
+function buildFriendComp(){
+  const top=LEADERBOARD[0];const you=LEADERBOARD[3];
+  const gap=top.xp-you.xp;
+  document.getElementById('friend-comp').innerHTML=`
+    <div class="fc-label">Closest competitor</div>
+    <div class="fc-row">
+      <div class="fc-avi" style="background:${top.bg};color:${top.fg}">${top.name.slice(0,2).toUpperCase()}</div>
+      <div class="fc-info">
+        <div class="fc-name">${top.name} · ${top.xp.toLocaleString()} XP</div>
+        <div class="fc-track"><div class="fc-fill" style="width:100%;background:linear-gradient(90deg,var(--gold),#8B7340)"></div></div>
+      </div>
+      <div class="fc-xp">${top.xp.toLocaleString()}</div>
+    </div>
+    <div class="fc-row">
+      <div class="fc-avi" style="background:${you.bg};color:${you.fg}">UJ</div>
+      <div class="fc-info">
+        <div class="fc-name">You · ${you.xp.toLocaleString()} XP</div>
+        <div class="fc-track"><div class="fc-fill" style="width:${Math.round((you.xp/top.xp)*100)}%;background:var(--crimson)"></div></div>
+      </div>
+      <div class="fc-xp">${you.xp.toLocaleString()}</div>
+    </div>
+    <div class="fc-cta" onclick="switchTo('ai');setTimeout(()=>sendAIMsg('How do I earn more XP faster to catch up on the leaderboard?'),300)">
+      ${gap.toLocaleString()} XP behind — ask coach how to close the gap →
+    </div>`;
+}
+
+function buildChallenges(){
+  document.getElementById('challenge-feed').innerHTML=CHALLENGES.map(c=>`
+    <div class="chal-card">
+      <div class="chal-top">
+        <div class="chal-name">${c.name}</div>
+        <div class="chal-xp">${c.xp}</div>
+      </div>
+      <div class="chal-meta">${c.meta}</div>
+      <div class="chal-bar"><div class="chal-fill" style="width:${c.pct}%"></div></div>
+      <div class="chal-footer">
+        <div class="chal-participants">👥 ${c.participants.toLocaleString()} men joined</div>
+        <button class="chal-join-btn ${joinedChallenges.has(c.id)?'joined':'join'}" id="cj-${c.id}" onclick="joinChallenge('${c.id}')">
+          ${joinedChallenges.has(c.id)?'✓ Joined':'Join'}
+        </button>
+      </div>
+    </div>`).join('');
+}
+
+function joinChallenge(id){
+  if(joinedChallenges.has(id)){toast('Already joined this challenge');return;}
+  joinedChallenges.add(id);
+  const btn=document.getElementById('cj-'+id);
+  if(btn){btn.textContent='✓ Joined';btn.className='chal-join-btn joined';}
+  addXP(15,'Challenge joined · +15 XP');
+}
+
+function buildBadges(){
+  document.getElementById('badges').innerHTML=BADGES.map(b=>`
+    <div class="badge" onclick="toast('${b.earned?b.name+' — earned ✓':'Keep going to unlock '+b.name}')">
+      <div class="badge-wrap ${b.earned?'earned':'locked'}">${b.icon}</div>
+      <div class="badge-name">${b.name}</div>
+    </div>`).join('');
+}
+
+function shareStreak(){
+  toast('Health card copied — share it anywhere!');
+  addXP(10,'Shared · +10 XP');
+}
+
+// ── RSVP ──
+function showRSVP(id){
+  const ev=EVENTS_DATA.find(e=>e.id===id);if(!ev)return;
+  if(joinedEvents.has(id)){
+    toast('You\'re already going to this event');return;
+  }
+  rsvpTarget=id;
+  document.getElementById('rsvp-emoji').textContent=ev.emoji;
+  document.getElementById('rsvp-name').textContent=ev.name;
+  document.getElementById('rsvp-detail').textContent=`📍 ${ev.loc}\n🕐 ${ev.time}, ${ev.month} ${ev.day}\n👥 ${ev.going} men already going`;
+  document.getElementById('rsvp-modal').classList.add('open');
+}
+
+function closeRSVP(){
+  document.getElementById('rsvp-modal').classList.remove('open');
+  rsvpTarget=null;
+}
+
+function confirmRSVP(){
+  if(!rsvpTarget)return;
+  joinedEvents.add(rsvpTarget);
+  const ev=EVENTS_DATA.find(e=>e.id===rsvpTarget);
+  closeRSVP();
+  // Update all buttons with this event id
+  const btn=document.getElementById('ev-btn-'+rsvpTarget);
+  const going=document.getElementById('ev-going-'+rsvpTarget);
+  if(btn){btn.textContent='✓ Going';btn.className='ev-join-btn joined';}
+  if(going&&ev){going.textContent=(ev.going+1)+' going';}
+  addXP(20,'Event joined · +20 XP');
+  toast('You\'re in! Added to your calendar');
+  // Rebuild community events too
+  document.getElementById('comm-events').innerHTML=EVENTS_DATA.map(ev=>evCardHTML(ev)).join('');
+  document.getElementById('home-events').innerHTML=EVENTS_DATA.slice(0,2).map(ev=>evCardHTML(ev)).join('');
+}
+
+function addToCalendar(name){
+  toast('Added "'+name+'" to calendar');
+}
+
+// ── NUTRITION ──
+function buildNutrition(){
+  buildWeeklyChart();
+  document.getElementById('macros-grid').innerHTML=MACROS.map(m=>`
+    <div class="macro-box">
+      <div class="macro-val" style="color:${m.color}">${m.val}${m.unit}</div>
+      <div class="macro-lbl">${m.label}</div>
+      <div class="macro-track"><div class="macro-fill-bar" style="width:${m.pct}%;background:${m.color}"></div></div>
+    </div>`).join('');
+  buildWater();
+  buildSupplements();
+  document.getElementById('meal-list').innerHTML=MEALS.map(m=>`
+    <div class="meal-row">
+      <div class="meal-ico">${m.emoji}</div>
+      <div class="meal-data"><div class="meal-n">${m.name}</div><div class="meal-s">${m.time} · ${m.protein}g protein</div></div>
+      <div class="meal-kcal">${m.cal} kcal</div>
+    </div>`).join('');
+}
+
+function buildWeeklyChart(){
+  const maxP=Math.max(...WEEK_PROTEIN);
+  document.getElementById('weekly-chart').innerHTML=`
+    <div class="wc-hdr">
+      <div class="wc-title">Protein (g)</div>
+      <div class="wc-avg">Avg ${Math.round(WEEK_PROTEIN.reduce((a,b)=>a+b)/7)}g / day</div>
+    </div>
+    <div class="wc-bars">
+      ${WEEK_PROTEIN.map((v,i)=>{
+        const h=Math.round((v/maxP)*56);
+        const isToday=i===6;
+        const col=isToday?'var(--crimson)':'rgba(184,150,74,0.4)';
+        return `<div class="wc-col">
+          <div class="wc-bar" style="height:${h}px;background:${col}"></div>
+          <div class="wc-day" style="color:${isToday?'var(--crimson2)':'var(--muted)'}">${WEEK_DAYS[i]}</div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+function buildWater(){
+  const total=8;
+  document.getElementById('water-count').textContent=waterGlasses+' / '+total+' glasses';
+  document.getElementById('water-glasses').innerHTML=Array.from({length:total},(_,i)=>{
+    const filled=i<waterGlasses;
+    return `<div class="glass ${filled?'filled':''}" onclick="addWater(${i})" title="Glass ${i+1}">
+      <div class="glass-fill" style="height:${filled?'100%':'0%'}"></div>
+    </div>`;
+  }).join('');
+}
+
+function addWater(idx){
+  waterGlasses=Math.min(idx+1,8);
+  buildWater();
+  if(waterGlasses===8){addXP(10,'Water goal hit · +10 XP');}
+  else toast('💧 '+waterGlasses+' / 8 glasses');
+}
+
+function buildSupplements(){
+  document.getElementById('supp-list').innerHTML=SUPPLEMENTS.map((s,i)=>`
+    <div class="supp-row">
+      <div class="supp-name">${s.name}</div>
+      <div class="supp-time">${s.time}</div>
+      <div class="supp-check ${suppChecked.has(i)?'checked':''}" onclick="toggleSupp(${i})">
+        ${suppChecked.has(i)?'✓':''}
+      </div>
+    </div>`).join('');
+}
+
+function toggleSupp(i){
+  if(suppChecked.has(i))suppChecked.delete(i);
+  else{suppChecked.add(i);if(suppChecked.size===SUPPLEMENTS.length)addXP(15,'All supps taken · +15 XP');}
+  buildSupplements();
+}
+
+function logMealAI(){
+  switchTo('ai');
+  setTimeout(()=>sendAIMsg("I want to log a meal. Suggest high-protein dinner options under 400 kcal that I can make or order in Delhi."),300);
+}
+
+function goAskNutrition(){
+  switchTo('ai');
+  setTimeout(()=>sendAIMsg("Give me a personalised meal plan for the rest of today based on what I've already eaten: eggs & oats (340 kcal), chicken rice bowl (580 kcal), whey shake (160 kcal), dal & roti (420 kcal)."),300);
+}
+
+// ── GAMIFICATION ──
+function addXP(amt,msg){
+  xp=Math.min(xp+amt,1000);
+  document.getElementById('xp-bar').style.width=xp+'%';
+  document.getElementById('xp-label').textContent=xp+' / 1000 XP';
+  if(msg){const el=document.getElementById('xp-pop');el.textContent='+'+msg;el.classList.add('on');setTimeout(()=>el.classList.remove('on'),1900);}
+}
+
+function completeChallenge(){
+  addXP(50,'50 XP');streak++;
+  document.getElementById('streak-num').textContent=streak;
+  buildHomeStats();buildStreakCal();
+}
+
+// ── NAVIGATION ──
+const TABS=['home','reels','ai','community','nutrition'];
+function switchTo(tab){
+  currentTab=tab;
+  TABS.forEach(t=>{
+    document.getElementById('scr-'+t)?.classList.toggle('active',t===tab);
+    const n=document.getElementById('nav-'+t);if(n)n.classList.toggle('on',t===tab);
+  });
+}
+
+// ── UTILS ──
+let toastT;
+function toast(msg){
+  const el=document.getElementById('toast-el');
+  el.textContent=msg;el.classList.add('on');
+  clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('on'),2600);
+}
+
+// ══════════════════════════════════════════════════════
+//  AUTH SYSTEM
+// ══════════════════════════════════════════════════════
+let authMode = 'login';
+let authMethod = 'phone';
+let resendInterval = null;
+let otpCode = '';
+
+function setAuthMode(mode) {
+  authMode = mode;
+  document.getElementById('tab-login').classList.toggle('on', mode === 'login');
+  document.getElementById('tab-signup').classList.toggle('on', mode === 'signup');
+  document.getElementById('name-group').style.display = mode === 'signup' ? 'block' : 'none';
+  document.getElementById('pass-label').textContent = mode === 'signup' ? 'Create password' : 'Password';
+  document.getElementById('forgot-link').style.display = mode === 'login' ? 'block' : 'none';
+  document.getElementById('email-auth-btn').textContent = mode === 'signup' ? 'Create account' : 'Log in';
+}
+
+function setMethod(method) {
+  authMethod = method;
+  document.getElementById('method-phone').classList.toggle('on', method === 'phone');
+  document.getElementById('method-email').classList.toggle('on', method === 'email');
+  document.getElementById('flow-phone').style.display = method === 'phone' ? 'block' : 'none';
+  document.getElementById('flow-email').style.display = method === 'email' ? 'block' : 'none';
+}
+
+function validatePhone() {
+  const val = document.getElementById('phone-input').value;
+  const valid = val.length === 10;
+  document.getElementById('phone-input').classList.toggle('error', val.length > 0 && !valid);
+  document.getElementById('phone-error').style.display = val.length > 0 && !valid ? 'block' : 'none';
+  document.getElementById('send-otp-btn').disabled = !valid;
+  return valid;
+}
+
+function sendOTP() {
+  if (!validatePhone()) return;
+  const phone = document.getElementById('phone-input').value;
+  const code = document.getElementById('country-code').value;
+  const full = code + ' ' + phone;
+  otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+  document.getElementById('step-phone-input').style.display = 'none';
+  document.getElementById('step-otp').style.display = 'block';
+  document.getElementById('otp-sent-to').textContent = full;
+  document.getElementById('otp-0').focus();
+  toast('Demo OTP: ' + otpCode + ' (auto-fills in 2s)');
+  setTimeout(() => {
+    otpCode.split('').forEach((d, i) => {
+      const box = document.getElementById('otp-' + i);
+      if (box) box.value = d;
+    });
+    document.getElementById('verify-otp-btn').disabled = false;
+    document.getElementById('verify-otp-btn').textContent = 'Verify & Continue';
+  }, 2000);
+  startResendTimer();
+}
+
+function otpInput(idx) {
+  const val = document.getElementById('otp-' + idx).value;
+  if (val && idx < 5) document.getElementById('otp-' + (idx+1)).focus();
+  const allFilled = Array.from({length:6}, (_,i) => document.getElementById('otp-'+i).value).every(v => v);
+  document.getElementById('verify-otp-btn').disabled = !allFilled;
+}
+
+function otpKey(e, idx) {
+  if (e.key === 'Backspace' && !document.getElementById('otp-'+idx).value && idx > 0)
+    document.getElementById('otp-'+(idx-1)).focus();
+}
+
+function verifyOTP() {
+  const entered = Array.from({length:6}, (_,i) => document.getElementById('otp-'+i).value).join('');
+  const btn = document.getElementById('verify-otp-btn');
+  btn.textContent = 'Verifying...'; btn.classList.add('loading'); btn.disabled = true;
+  setTimeout(() => {
+    if (entered === otpCode) {
+      const phone = document.getElementById('country-code').value + ' ' + document.getElementById('phone-input').value;
+      showLoginSuccess(phone, '');
+    } else {
+      btn.textContent = 'Verify & Continue'; btn.classList.remove('loading'); btn.disabled = false;
+      Array.from({length:6}, (_,i) => { const b=document.getElementById('otp-'+i); b.classList.add('error'); b.value=''; });
+      document.getElementById('otp-0').focus();
+      toast('Incorrect OTP — try again');
+    }
+  }, 1200);
+}
+
+function backToPhone() {
+  document.getElementById('step-phone-input').style.display = 'block';
+  document.getElementById('step-otp').style.display = 'none';
+  clearInterval(resendInterval);
+}
+
+function startResendTimer() {
+  let secs = 30;
+  const link = document.getElementById('resend-link');
+  link.style.pointerEvents='none'; link.style.opacity='0.5';
+  clearInterval(resendInterval);
+  resendInterval = setInterval(() => {
+    secs--;
+    const t = document.getElementById('resend-timer');
+    if(t) t.textContent = secs;
+    if (secs <= 0) {
+      clearInterval(resendInterval);
+      if(link){ link.innerHTML='<span style="color:var(--crimson2);cursor:pointer;font-weight:500;" onclick="resendOTP()">Resend OTP</span>'; link.style.pointerEvents='auto'; link.style.opacity='1'; }
+    }
+  }, 1000);
+}
+
+function resendOTP() {
+  otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+  toast('New OTP: ' + otpCode + ' (auto-fills in 2s)');
+  Array.from({length:6}, (_,i) => { document.getElementById('otp-'+i).value=''; });
+  document.getElementById('verify-otp-btn').disabled = true;
+  setTimeout(() => { otpCode.split('').forEach((d,i)=>{ const b=document.getElementById('otp-'+i); if(b) b.value=d; }); document.getElementById('verify-otp-btn').disabled=false; }, 2000);
+  startResendTimer();
+}
+
+function validateEmail() {
+  const val = document.getElementById('email-input').value;
+  const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+  document.getElementById('email-input').classList.toggle('error', val.length > 0 && !valid);
+  document.getElementById('email-error').style.display = val.length > 0 && !valid ? 'block' : 'none';
+  return valid;
+}
+
+function validatePass() {
+  const val = document.getElementById('pass-input').value;
+  const valid = val.length >= 8;
+  document.getElementById('pass-input').classList.toggle('error', val.length > 0 && !valid);
+  document.getElementById('pass-error').style.display = val.length > 0 && !valid ? 'block' : 'none';
+  return valid;
+}
+
+function togglePass() {
+  const inp = document.getElementById('pass-input');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  document.getElementById('eye-btn').textContent = inp.type === 'password' ? '👁' : '🙈';
+}
+
+function emailAuth() {
+  if (!validateEmail() || !validatePass()) return;
+  const btn = document.getElementById('email-auth-btn');
+  const email = document.getElementById('email-input').value;
+  const nameInp = document.getElementById('name-input');
+  const name = nameInp ? nameInp.value.trim() : '';
+  btn.textContent = authMode === 'login' ? 'Logging in...' : 'Creating account...';
+  btn.classList.add('loading'); btn.disabled = true;
+  setTimeout(() => showLoginSuccess(email, name), 1400);
+}
+
+function forgotPassword() {
+  if (!validateEmail()) { document.getElementById('email-input').focus(); toast('Enter your email first'); return; }
+  toast('Password reset link sent to ' + document.getElementById('email-input').value);
+}
+
+function socialAuth(provider) {
+  if (provider === 'Google') {
+    // Simulate Google OAuth flow
+    toast('Redirecting to Google...');
+    // In production this would be: window.location.href = '/api/auth/google'
+    // For demo, show a name capture prompt after 1s
+    setTimeout(() => {
+      const name = prompt('Enter your Google account name (demo):') || 'Google User';
+      const email = (name.toLowerCase().replace(/\s+/g,'') + '@gmail.com');
+      showLoginSuccess(email, name);
+    }, 800);
+    return;
+  }
+  toast('Connecting to ' + provider + '...');
+  setTimeout(() => showLoginSuccess('user via ' + provider, provider + ' User'), 1500);
+}
+
+function showLoginSuccess(identifier) {
+  clearInterval(resendInterval);
+  // Directly hide login screen after brief success flash
+  const ls = document.getElementById('login-screen');
+  const body = document.querySelector('.login-body');
+  if (body) {
+    body.innerHTML = '<div class="login-success"><div class="success-ring">&#10003;</div><div class="success-title">Welcome to RxMen</div><div class="success-sub">Signed in as<br><strong style="color:var(--offwhite)">' + identifier + '</strong></div></div>';
+  }
+  setTimeout(() => {
+    if (ls) ls.classList.add('hidden');
+    // Force home screen active
+    switchTo('home');
+  }, 1400);
+}
+
+function openPanel() {
+  document.getElementById('side-panel').classList.add('open');
+  document.getElementById('panel-overlay').classList.add('open');
+  document.getElementById('panel-xp-val').textContent = xp + ' / 1000 XP';
+}
+function closePanel() {
+  document.getElementById('side-panel').classList.remove('open');
+  document.getElementById('panel-overlay').classList.remove('open');
+}
+function panelNav(section) {
+  closePanel();
+  if (section === 'profile') {
+    setTimeout(() => openProfile(), 300);
+    return;
+  }
+  if (section === 'goals') {
+    setTimeout(() => { openProfile(); setTimeout(() => document.getElementById('goal-grid')?.scrollIntoView({behavior:'smooth'}), 400); }, 300);
+    return;
+  }
+  const msgs = {
+    subscription:'RxMen Pro — launching soon! 🚀',
+    notifications:'Notification settings — coming in v1.1',
+    privacy:'Your data is encrypted end-to-end ✓',
+    help:'Email us: support@rxmen.in',
+  };
+  setTimeout(()=>toast(msgs[section]||'Coming soon'),300);
+}
+function confirmLogout() {
+  closePanel();
+  setTimeout(() => {
+    const ls = document.getElementById('login-screen');
+    if (!ls) return;
+    // Reset form state
+    const body = ls.querySelector('.login-body');
+    if (body) {
+      // Reset to phone tab
+      const tabs = body.querySelector('#auth-tabs');
+      const phoneFlow = body.querySelector('#flow-phone');
+      const stepOtp = body.querySelector('#step-otp');
+      const stepPhone = body.querySelector('#step-phone-input');
+      if (stepOtp) stepOtp.style.display = 'none';
+      if (stepPhone) stepPhone.style.display = 'block';
+    }
+    ls.classList.remove('hidden');
+    // Reset XP and state for demo
+    toast('Logged out successfully');
+  }, 300);
+}
+
+init();
+
+</script>
+</body>
+</html>

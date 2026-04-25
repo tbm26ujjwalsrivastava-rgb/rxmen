@@ -882,12 +882,12 @@ body{font-family:'Inter',sans-serif;color:var(--text);font-size:14px;line-height
 
   <div class="login-body">
     <div class="auth-tabs" id="auth-tabs">
-      <div class="auth-tab on" id="tab-login" onclick="setAuthMode('login')">Log in</div>
-      <div class="auth-tab" id="tab-signup" onclick="setAuthMode('signup')">Sign up</div>
+      <div class="auth-tab on" id="tab-login" id="tab-login-btn">Log in</div>
+      <div class="auth-tab" id="tab-signup" id="tab-signup-btn">Sign up</div>
     </div>
     <div class="method-toggle">
-      <div class="method-btn on" id="method-phone" onclick="setMethod('phone')">📱 Phone</div>
-      <div class="method-btn" id="method-email" onclick="setMethod('email')">✉️ Email</div>
+      <div class="method-btn on" id="method-phone" id="method-phone-btn">📱 Phone</div>
+      <div class="method-btn" id="method-email" id="method-email-btn">✉️ Email</div>
     </div>
 
     <div id="flow-phone">
@@ -903,12 +903,12 @@ body{font-family:'Inter',sans-serif;color:var(--text);font-size:14px;line-height
               <option value="+65">🇸🇬 +65</option>
             </select>
             <input class="auth-input" id="phone-input" type="tel" maxlength="10" placeholder="98765 43210"
-              oninput="this.value=this.value.replace(/\D/g,'');validatePhone()"
+              id="phone-inp"
               onkeydown="if(event.key==='Enter')sendOTP()">
           </div>
           <div class="input-error" id="phone-error">Please enter a valid 10-digit number</div>
         </div>
-        <button class="auth-cta" id="send-otp-btn" onclick="sendOTP()" disabled>Send OTP</button>
+        <button class="auth-cta" id="send-otp-btn" id="send-otp-btn-el" disabled>Send OTP</button>
       </div>
       <div id="step-otp" style="display:none;">
         <div style="text-align:center;margin-bottom:20px;">
@@ -916,17 +916,17 @@ body{font-family:'Inter',sans-serif;color:var(--text);font-size:14px;line-height
           <div style="font-size:13px;color:var(--muted2);">Sent to <span id="otp-sent-to" style="color:var(--offwhite);font-weight:500;"></span></div>
         </div>
         <div class="otp-row">
-          <input class="otp-box" id="otp-0" type="tel" maxlength="1" oninput="otpInput(0)" onkeydown="otpKey(event,0)">
-          <input class="otp-box" id="otp-1" type="tel" maxlength="1" oninput="otpInput(1)" onkeydown="otpKey(event,1)">
-          <input class="otp-box" id="otp-2" type="tel" maxlength="1" oninput="otpInput(2)" onkeydown="otpKey(event,2)">
-          <input class="otp-box" id="otp-3" type="tel" maxlength="1" oninput="otpInput(3)" onkeydown="otpKey(event,3)">
-          <input class="otp-box" id="otp-4" type="tel" maxlength="1" oninput="otpInput(4)" onkeydown="otpKey(event,4)">
-          <input class="otp-box" id="otp-5" type="tel" maxlength="1" oninput="otpInput(5)" onkeydown="otpKey(event,5)">
+          <input class="otp-box" id="otp-0" type="tel" maxlength="1" id="otp-inp-0">
+          <input class="otp-box" id="otp-1" type="tel" maxlength="1" id="otp-inp-1">
+          <input class="otp-box" id="otp-2" type="tel" maxlength="1" id="otp-inp-2">
+          <input class="otp-box" id="otp-3" type="tel" maxlength="1" id="otp-inp-3">
+          <input class="otp-box" id="otp-4" type="tel" maxlength="1" id="otp-inp-4">
+          <input class="otp-box" id="otp-5" type="tel" maxlength="1" id="otp-inp-5">
         </div>
-        <div class="otp-hint">Didn't receive it? <span class="resend-link" id="resend-link" onclick="resendOTP()">Resend in <span id="resend-timer">30</span>s</span></div>
-        <button class="auth-cta" id="verify-otp-btn" onclick="verifyOTP()" disabled>Verify & Continue</button>
+        <div class="otp-hint">Didn't receive it? <span class="resend-link" id="resend-link" id="resend-otp-el">Resend in <span id="resend-timer">30</span>s</span></div>
+        <button class="auth-cta" id="verify-otp-btn" id="verify-btn-el" disabled>Verify & Continue</button>
         <div style="text-align:center;margin-top:14px;">
-          <span style="font-size:12px;color:var(--muted2);cursor:pointer;" onclick="backToPhone()">← Change number</span>
+          <span style="font-size:12px;color:var(--muted2);cursor:pointer;" id="back-phone-el">← Change number</span>
         </div>
       </div>
     </div>
@@ -934,7 +934,7 @@ body{font-family:'Inter',sans-serif;color:var(--text);font-size:14px;line-height
     <div id="flow-email" style="display:none;">
       <div class="input-group">
         <div class="input-label">Email address</div>
-        <input class="auth-input" id="email-input" type="email" placeholder="ujjwal@example.com" oninput="validateEmail()">
+        <input class="auth-input" id="email-input" type="email" placeholder="ujjwal@example.com" id="email-inp">
         <div class="input-error" id="email-error">Please enter a valid email</div>
       </div>
       <div class="input-group" id="name-group" style="display:none;">
@@ -944,24 +944,24 @@ body{font-family:'Inter',sans-serif;color:var(--text);font-size:14px;line-height
       <div class="input-group">
         <div class="input-label" id="pass-label">Password</div>
         <div style="position:relative;">
-          <input class="auth-input" id="pass-input" type="password" placeholder="Min. 8 characters" oninput="validatePass()" style="padding-right:44px;" onkeydown="if(event.key==='Enter')emailAuth()">
-          <div onclick="togglePass()" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:16px;color:var(--muted);" id="eye-btn">👁</div>
+          <input class="auth-input" id="pass-input" type="password" placeholder="Min. 8 characters" id="pass-inp" style="padding-right:44px;" onkeydown="if(event.key==='Enter')emailAuth()">
+          <div id="eye-btn-el" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:16px;color:var(--muted);" id="eye-btn">👁</div>
         </div>
         <div class="input-error" id="pass-error">Password must be at least 8 characters</div>
       </div>
       <div id="forgot-link" style="text-align:right;margin-bottom:16px;margin-top:-8px;">
-        <span style="font-size:12px;color:var(--crimson2);cursor:pointer;" onclick="forgotPassword()">Forgot password?</span>
+        <span style="font-size:12px;color:var(--crimson2);cursor:pointer;" id="forgot-el">Forgot password?</span>
       </div>
-      <button class="auth-cta" id="email-auth-btn" onclick="emailAuth()">Log in</button>
+      <button class="auth-cta" id="email-auth-btn" id="email-auth-el">Log in</button>
     </div>
 
     <div class="or-divider">or continue with</div>
     <div class="social-btns">
-      <div class="social-btn" onclick="socialAuth('Google')">
+      <div class="social-btn" id="google-btn">
         <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
         Google
       </div>
-      <div class="social-btn" onclick="socialAuth('WhatsApp')">
+      <div class="social-btn" id="whatsapp-btn">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
         WhatsApp
       </div>
@@ -1341,6 +1341,93 @@ body{font-family:'Inter',sans-serif;color:var(--text);font-size:14px;line-height
 
 <script>
 
+// ── ATTACH LOGIN EVENTS AFTER DOM LOADS ──
+document.addEventListener('DOMContentLoaded', function() {
+
+  // Phone input
+  const phoneInp = document.getElementById('phone-inp') || document.getElementById('phone-input');
+  if (phoneInp) {
+    phoneInp.id = 'phone-input';
+    phoneInp.addEventListener('input', function() {
+      this.value = this.value.replace(/\D/g, '');
+      validatePhone();
+    });
+    phoneInp.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') sendOTP();
+    });
+  }
+
+  // Send OTP button
+  const sendBtn = document.getElementById('send-otp-btn-el') || document.getElementById('send-otp-btn');
+  if (sendBtn) { sendBtn.id = 'send-otp-btn'; sendBtn.addEventListener('click', sendOTP); }
+
+  // Verify OTP button
+  const verifyBtn = document.getElementById('verify-btn-el') || document.getElementById('verify-otp-btn');
+  if (verifyBtn) { verifyBtn.id = 'verify-otp-btn'; verifyBtn.addEventListener('click', verifyOTP); }
+
+  // Back to phone
+  const backBtn = document.getElementById('back-phone-el');
+  if (backBtn) backBtn.addEventListener('click', backToPhone);
+
+  // Resend OTP
+  const resendBtn = document.getElementById('resend-otp-el');
+  if (resendBtn) resendBtn.addEventListener('click', resendOTP);
+
+  // OTP boxes
+  for (let i = 0; i < 6; i++) {
+    const box = document.getElementById('otp-inp-' + i) || document.getElementById('otp-' + i);
+    if (box) {
+      box.id = 'otp-' + i;
+      box.addEventListener('input', function() { otpInput(i); });
+      box.addEventListener('keydown', function(e) { otpKey(e, i); });
+    }
+  }
+
+  // Email input
+  const emailInp = document.getElementById('email-inp') || document.getElementById('email-input');
+  if (emailInp) { emailInp.id = 'email-input'; emailInp.addEventListener('input', validateEmail); emailInp.addEventListener('keydown', function(e) { if(e.key==='Enter') document.getElementById('pass-input')?.focus(); }); }
+
+  // Password input
+  const passInp = document.getElementById('pass-inp') || document.getElementById('pass-input');
+  if (passInp) { passInp.id = 'pass-input'; passInp.addEventListener('input', validatePass); passInp.addEventListener('keydown', function(e) { if(e.key==='Enter') emailAuth(); }); }
+
+  // Eye button
+  const eyeBtn = document.getElementById('eye-btn-el') || document.getElementById('eye-btn');
+  if (eyeBtn) { eyeBtn.id = 'eye-btn'; eyeBtn.addEventListener('click', togglePass); }
+
+  // Email auth button
+  const emailAuthBtn = document.getElementById('email-auth-el') || document.getElementById('email-auth-btn');
+  if (emailAuthBtn) { emailAuthBtn.id = 'email-auth-btn'; emailAuthBtn.addEventListener('click', emailAuth); }
+
+  // Forgot password
+  const forgotEl = document.getElementById('forgot-el');
+  if (forgotEl) forgotEl.addEventListener('click', forgotPassword);
+
+  // Auth mode tabs
+  const tabLogin = document.getElementById('tab-login-btn') || document.getElementById('tab-login');
+  if (tabLogin) { tabLogin.id = 'tab-login'; tabLogin.addEventListener('click', function() { setAuthMode('login'); }); }
+
+  const tabSignup = document.getElementById('tab-signup-btn') || document.getElementById('tab-signup');
+  if (tabSignup) { tabSignup.id = 'tab-signup'; tabSignup.addEventListener('click', function() { setAuthMode('signup'); }); }
+
+  // Method toggle
+  const methodPhone = document.getElementById('method-phone-btn') || document.getElementById('method-phone');
+  if (methodPhone) { methodPhone.id = 'method-phone'; methodPhone.addEventListener('click', function() { setMethod('phone'); }); }
+
+  const methodEmail = document.getElementById('method-email-btn') || document.getElementById('method-email');
+  if (methodEmail) { methodEmail.id = 'method-email'; methodEmail.addEventListener('click', function() { setMethod('email'); }); }
+
+  // Social buttons
+  const googleBtn = document.getElementById('google-btn');
+  if (googleBtn) googleBtn.addEventListener('click', function() { socialAuth('Google'); });
+
+  const waBtn = document.getElementById('whatsapp-btn');
+  if (waBtn) waBtn.addEventListener('click', function() { socialAuth('WhatsApp'); });
+
+  console.log('✓ RxMen login events attached');
+});
+
+
 // ══════════════════════════════════════════════════════
 //  AUTH SYSTEM
 // ══════════════════════════════════════════════════════
@@ -1466,7 +1553,7 @@ function startResendTimer() {
     if (secs <= 0) {
       clearInterval(resendInterval);
       if (link) {
-        link.innerHTML = '<span style="color:var(--crimson2);cursor:pointer;font-weight:500;" onclick="resendOTP()">Resend OTP</span>';
+        link.innerHTML = '<span style="color:var(--crimson2);cursor:pointer;font-weight:500;" id="resend-otp-el">Resend OTP</span>';
         link.style.pointerEvents = 'auto';
         link.style.opacity = '1';
       }

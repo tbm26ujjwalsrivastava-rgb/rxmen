@@ -806,6 +806,54 @@ body{font-family:'Inter',sans-serif;color:var(--text);font-size:14px;line-height
   border-color:rgba(196,30,58,0.4);background:rgba(196,30,58,0.08);color:var(--crimson2);
 }
 
+
+/* ── NOTIFICATIONS PANEL ── */
+.notif-panel{
+  position:fixed;top:0;right:0;bottom:0;width:88%;max-width:340px;
+  background:var(--navy2);border-left:1px solid var(--border2);
+  z-index:350;transform:translateX(100%);
+  transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  display:flex;flex-direction:column;overflow:hidden;
+  max-width:430px;
+}
+.notif-panel.open{transform:translateX(0);}
+.notif-hdr{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.notif-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--offwhite);}
+.notif-close{width:30px;height:30px;border-radius:8px;background:var(--navy3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:var(--muted);}
+.notif-scroll{flex:1;overflow-y:auto;padding:12px 0;}
+.notif-item{display:flex;gap:12px;padding:14px 18px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.15s;}
+.notif-item:active{background:var(--navy3);}
+.notif-item.unread{background:rgba(196,30,58,0.03);}
+.notif-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.notif-body{flex:1;}
+.notif-text{font-size:13px;color:var(--text);line-height:1.4;margin-bottom:3px;}
+.notif-time{font-size:11px;color:var(--muted);}
+.notif-unread-dot{width:7px;height:7px;border-radius:50%;background:var(--crimson);flex-shrink:0;margin-top:5px;}
+
+/* ── MEAL LOG MODAL ── */
+.meal-modal{
+  position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);
+  z-index:450;display:none;align-items:flex-end;max-width:430px;margin:0 auto;
+}
+.meal-modal.open{display:flex;}
+.meal-sheet{
+  width:100%;background:var(--navy2);border-radius:20px 20px 0 0;
+  border-top:1px solid var(--border2);padding:20px;
+  max-height:80vh;overflow-y:auto;
+}
+.meal-sheet-handle{width:36px;height:3px;background:var(--navy4);border-radius:99px;margin:0 auto 18px;}
+.meal-sheet-title{font-family:'Playfair Display',serif;font-size:17px;font-weight:600;color:var(--offwhite);margin-bottom:16px;}
+.meal-quick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:16px;}
+.meal-quick-btn{padding:12px;background:var(--navy3);border:1px solid var(--border);border-radius:var(--r);cursor:pointer;text-align:left;transition:border-color 0.2s;}
+.meal-quick-btn:active{border-color:rgba(196,30,58,0.4);}
+.meal-quick-emoji{font-size:20px;margin-bottom:6px;}
+.meal-quick-name{font-size:13px;font-weight:500;color:var(--offwhite);}
+.meal-quick-cal{font-size:11px;color:var(--muted);}
+.meal-search-input{width:100%;background:var(--navy3);border:1px solid var(--border);border-radius:var(--r3);padding:11px 16px;font-size:14px;color:var(--text);font-family:'Inter',sans-serif;outline:none;margin-bottom:12px;transition:border-color 0.2s;}
+.meal-search-input:focus{border-color:rgba(196,30,58,0.35);}
+.meal-ask-ai{display:flex;align-items:center;gap:10px;padding:13px;background:rgba(196,30,58,0.06);border:1px solid rgba(196,30,58,0.15);border-radius:var(--r);cursor:pointer;margin-top:4px;}
+.meal-ask-ai:active{background:rgba(196,30,58,0.12);}
+
 </style>
 </head>
 <body>
@@ -930,7 +978,7 @@ body{font-family:'Inter',sans-serif;color:var(--text);font-size:14px;line-height
     <div class="logo" style="flex-shrink:0;white-space:nowrap;">Rx<span>Men</span></div>
     <div class="topbar-right">
       <div class="streak-pill">🔥 <span id="streak-num">7</span></div>
-      <div class="icon-btn" onclick="toast('3 new wellness events near you')">🔔<div class="notif-pip"></div></div>
+      <div class="icon-btn" onclick="openNotifications()" id="notif-btn">🔔<div class="notif-pip" id="notif-pip"></div></div>
       <div class="hamburger" onclick="openPanel()" style="position:relative;">
         <div class="hb-line"></div>
         <div class="hb-line"></div>
@@ -953,12 +1001,12 @@ body{font-family:'Inter',sans-serif;color:var(--text);font-size:14px;line-height
   <div class="screen active scroll" id="scr-home">
     <div class="greeting">
       <div class="greet-time" id="greet-time">Good morning</div>
-      <div class="greet-name">Ujjwal</div>
+      <div class="greet-name" id="greet-name-el">Friend 👋</div>
     </div>
     <div class="sec" style="margin-top:4px;"><div class="sec-t">Daily reads</div><div class="sec-l" onclick="loadMoreArticles()">Refresh →</div></div>
     <div id="articles-strip" style="display:flex;gap:12px;padding:0 16px;overflow-x:auto;margin-bottom:20px;"></div>
     <div class="quick-actions">
-      <div class="qa-pill" onclick="switchTo('nutrition');setTimeout(()=>toast('Log your meal below'),400)"><span class="qa-icon">🍽️</span>Log a meal</div>
+      <div class="qa-pill" onclick="switchTo('nutrition');setTimeout(()=>openMealModal(),400)"><span class="qa-icon">🍽️</span>Log a meal</div>
       <div class="qa-pill" onclick="startWorkout()"><span class="qa-icon">💪</span>Start workout</div>
       <div class="qa-pill" onclick="switchTo('ai')"><span class="qa-icon">🩺</span>Ask coach</div>
       <div class="qa-pill" onclick="switchTo('reels')"><span class="qa-icon">▶</span>Watch reels</div>
@@ -1092,7 +1140,7 @@ body{font-family:'Inter',sans-serif;color:var(--text);font-size:14px;line-height
       </div>
       <div class="sec"><div class="sec-t">Meals logged</div><div class="sec-l" onclick="toast('Meal history — coming soon')">History →</div></div>
       <div class="meal-list" id="meal-list"></div>
-      <button class="log-btn" onclick="logMealAI()">+ Log a meal</button>
+      <button class="log-btn" onclick="openMealModal()">+ Log a meal</button>
       <div class="ai-nutr-cta" onclick="goAskNutrition()">
         <div class="an-icon">🩺</div>
         <div style="flex:1"><div class="an-title">Ask RxAI Nutritionist</div><div class="an-sub">Personalised meal plans, macros, recipes</div></div>
@@ -1113,8 +1161,8 @@ body{font-family:'Inter',sans-serif;color:var(--text);font-size:14px;line-height
         <circle cx="130" cy="30" r="20" fill="rgba(196,30,58,0.4)"/>
       </svg>
       <div class="panel-avatar" id="panel-avatar">UJ</div>
-      <div class="panel-name" id="panel-name">Ujjwal</div>
-      <div class="panel-email" id="panel-email">ujjwal@rxmen.in</div>
+      <div class="panel-name" id="panel-name">User</div>
+      <div class="panel-email" id="panel-email">—</div>
     </div>
     <div class="panel-xp-row">
       <div class="panel-xp-icon">⚡</div>
@@ -1137,7 +1185,6 @@ body{font-family:'Inter',sans-serif;color:var(--text);font-size:14px;line-height
       <div class="panel-item" onclick="panelNav('privacy')"><div class="panel-item-icon">🔒</div><div style="flex:1;"><div class="panel-item-label">Privacy & Data</div><div class="panel-item-sub">Your data is encrypted</div></div><div class="panel-item-arrow">›</div></div>
       <div class="panel-item" onclick="panelNav('help')"><div class="panel-item-icon">💬</div><div style="flex:1;"><div class="panel-item-label">Help & Support</div><div class="panel-item-sub">FAQs, contact us</div></div><div class="panel-item-arrow">›</div></div>
       <div class="panel-divider"></div>
-      <div class="panel-item danger" onclick="confirmLogout()"><div class="panel-item-icon">🚪</div><div style="flex:1;"><div class="panel-item-label">Log out</div></div></div>
     </div>
     <div class="panel-footer">
       <div style="font-size:10px;color:var(--muted);text-align:center;margin-bottom:10px;">RxMen v1.0 · Member since Apr 2026</div>
@@ -1183,8 +1230,8 @@ body{font-family:'Inter',sans-serif;color:var(--text);font-size:14px;line-height
           <span id="profile-avatar-initials">UJ</span>
           <div class="avatar-edit-badge">✎</div>
         </div>
-        <div class="profile-display-name" id="profile-name-display">Ujjwal</div>
-        <div class="profile-display-email" id="profile-email-display">ujjwal@rxmen.in</div>
+        <div class="profile-display-name" id="profile-name-display">User</div>
+        <div class="profile-display-email" id="profile-email-display">—</div>
       </div>
 
       <div class="profile-stats-row">
@@ -1260,6 +1307,36 @@ body{font-family:'Inter',sans-serif;color:var(--text);font-size:14px;line-height
     </div>
   </div>
 
+
+  <!-- ══ NOTIFICATIONS PANEL ══ -->
+  <div class="panel-overlay" id="notif-overlay" onclick="closeNotifications()" style="z-index:349;"></div>
+  <div class="notif-panel" id="notif-panel">
+    <div class="notif-hdr">
+      <div class="notif-title">Notifications</div>
+      <div class="notif-close" onclick="closeNotifications()">✕</div>
+    </div>
+    <div class="notif-scroll" id="notif-scroll"></div>
+  </div>
+
+  <!-- ══ MEAL LOG MODAL ══ -->
+  <div class="meal-modal" id="meal-modal" onclick="if(event.target===this)closeMealModal()">
+    <div class="meal-sheet">
+      <div class="meal-sheet-handle"></div>
+      <div class="meal-sheet-title">Log a meal</div>
+      <input class="meal-search-input" id="meal-search" placeholder="Search food (e.g. dal rice, chicken sandwich)…"
+        onkeydown="if(event.key==='Enter')searchMeal()">
+      <div class="meal-quick-grid" id="meal-quick-grid"></div>
+      <div class="meal-ask-ai" onclick="closeMealModal();switchTo('ai');setTimeout(()=>sendAIMsg('Suggest high-protein meals I can eat right now in ' + (userCity||'India') + ' — include calories and macros for each.'),300)">
+        <div style="font-size:20px;">🩺</div>
+        <div>
+          <div style="font-size:14px;font-weight:500;color:var(--offwhite);">Ask RxAI for meal suggestions</div>
+          <div style="font-size:11px;color:var(--muted);">Personalised to your goals and location</div>
+        </div>
+        <div style="margin-left:auto;color:var(--muted);font-size:13px;">→</div>
+      </div>
+    </div>
+  </div>
+
 </div><!-- end .app -->
 
 <script>
@@ -1269,52 +1346,169 @@ const CONFIG = {
   YOUTUBE_API_KEY: 'AIzaSyAAqS2DUE01818XQM3DHPtjjIMFcyA2Xhw',
   NUTRITIONIX_APP_ID: 'YOUR_NX_APP_ID',
   NUTRITIONIX_APP_KEY: 'YOUR_NX_APP_KEY',
+  DEEPSEEK_API_KEY: 'YOUR_DEEPSEEK_API_KEY',
 };
+
+// ── SMART PRE-LOADED RESPONSES (AI fallback) ──
+const SR = {
+  workout:`**Here's your personalised training plan:**
+
+Start with 3 sessions per week — Monday, Wednesday, Friday. Open each session with a compound lift (squat, deadlift, or bench press), follow with 2-3 isolation exercises, finish with 20 minutes of Zone 2 cardio.
+
+**Week 1-4:** Master form on the big lifts. Use 70% of your max, 3 sets of 8-10 reps. Add 2.5kg every week if you hit all reps cleanly — this is progressive overload, the core principle of all muscle growth.
+
+**Recovery matters as much as training.** Sleep 7-9 hours, eat 1.6-2g protein per kg bodyweight. Most Indian men overtrain and undersleep — that's why progress stalls. Start this Monday.`,
+
+  protein:`**For an active Indian man, aim for 1.6–2.2g protein per kg of bodyweight daily.**
+
+At 70kg that's **112–154g protein.** Most Indian men get 60-70g — significantly under target.
+
+**Best desi sources (per 100g):**
+- Chicken breast: 31g protein
+- Paneer: 18g protein
+- Eggs (2 whole): 12g protein
+- Curd (200ml): 7g protein
+- Dal (1 bowl): 9g protein
+
+Post-workout, have protein within 2 hours — shake, curd, or eggs all work equally well. Total daily intake matters more than timing. Hit your number first.`,
+
+  sleep:`**6 hours of sleep is actively working against your progress.**
+
+Your body produces **70% of daily growth hormone during sleep.** Sleeping 5 vs 8 hours drops testosterone by 10-15% within one week — equivalent to ageing 10 years overnight.
+
+**3 changes that work immediately:**
+1. Same wake time every day — even weekends. Most powerful single change.
+2. Room temperature 18-20°C — your body needs to drop core temperature for deep sleep.
+3. No screens 1 hour before bed — blue light suppresses melatonin for 3 hours.
+
+Aim for 7-9 hours. Non-negotiable if gains matter to you.`,
+
+  plateau:`**Plateaus happen for 3 reasons. Let's find yours.**
+
+**1. No progressive overload** — Are you adding weight or reps each week? If not, your body has no reason to adapt. Track every single session.
+
+**2. Insufficient protein** — Most plateauing Indian men are eating 60-80g protein instead of 130-160g. Increase protein for 2 weeks and recheck.
+
+**3. Under-recovery** — Less than 7 hours sleep, high work stress, or training 6-7 days without rest. Take a deload week at 50% intensity, then come back fresh.
+
+Which sounds most like you? Tell me your current routine and I'll give you a specific fix.`,
+
+  creatine:`**Yes — creatine is completely safe for daily use. It's the most studied supplement in sports science.**
+
+**How to take it:** 5g daily, any time, with or without food. No loading phase needed. Takes 3-4 weeks to fully saturate your muscles.
+
+**What it does:** Increases phosphocreatine stores, giving you 10-15% more output on heavy lifts. Most noticeable on your 4th and 5th sets when you'd normally fatigue.
+
+**Trusted Indian brands:** MuscleBlaze Creatine Monohydrate, Optimum Nutrition Micronized Creatine, MyProtein Creatine — all third-party tested. No need to cycle it. Take it indefinitely.`,
+
+  fat:`**The formula for sustainable fat loss: 300-400 calorie deficit + high protein + resistance training.**
+
+Don't slash calories aggressively — you'll lose muscle alongside fat and your metabolism will slow.
+
+**The practical steps:**
+1. Find your TDEE (bodyweight kg × 30 for moderately active)
+2. Subtract 300-400 calories from that number
+3. Keep protein at 2g per kg bodyweight — this protects muscle
+4. Train weights 3x per week + 2 cardio sessions
+
+**On Indian food specifically:** Reduce roti portions by 1 at dinner, halve cooking oil, switch to low-fat dairy. Don't chase "healthy food" — just eat slightly less of what you normally eat while keeping protein high.`,
+
+  testosterone:`**Natural ways to support healthy testosterone levels:**
+
+Sleep is the single biggest lever — testosterone is primarily produced during deep sleep. 7-9 hours is non-negotiable.
+
+**Other evidence-backed approaches:**
+- **Strength training** — compound lifts (squat, deadlift) spike testosterone acutely
+- **Reduce body fat** — excess fat converts testosterone to estrogen
+- **Manage chronic stress** — cortisol and testosterone are inversely related  
+- **Vitamin D** — most urban Indians are deficient; supplement 2000-4000 IU daily with food
+- **Zinc** — found in meat, pumpkin seeds, chickpeas, oysters
+
+If you genuinely suspect clinical low T (not just tiredness from poor sleep), see an endocrinologist and get a blood test. Don't self-medicate with "testosterone booster" supplements — most are ineffective.`,
+
+  default:`**Here's what the science says:**
+
+This is one of those areas where there's a lot of noise and not enough signal. My honest take: the fundamentals account for 90% of results — consistent training, adequate protein (1.6-2g per kg bodyweight), 7-9 hours of sleep, and stress management.
+
+Everything else — timing, advanced supplements, special techniques — is the remaining 10%. Get the 90% right first before optimising the rest.
+
+Is there a specific aspect you want to go deeper on? Tell me what you're currently doing and what isn't working, and I'll give you a targeted answer.`
+};
+
+function getSmartResponse(msg) {
+  const m = msg.toLowerCase();
+  if (m.match(/workout|plan|exercise|training|gym|lift|push|pull|squat|deadlift|routine/)) return SR.workout;
+  if (m.match(/protein|eat|food|meal|diet|nutrition|calorie|macro|desi/)) return SR.protein;
+  if (m.match(/sleep|rest|recover|tired|fatigue|wake/)) return SR.sleep;
+  if (m.match(/plateau|stall|progress|stuck|not work|stopped/)) return SR.plateau;
+  if (m.match(/creatine|supplement|safe|daily use/)) return SR.creatine;
+  if (m.match(/fat|weight loss|belly|slim|lean|cut|lose/)) return SR.fat;
+  if (m.match(/testosterone|hormone|low t|libido|energy|t level/)) return SR.testosterone;
+  return SR.default;
+}
 
 // ── MOCK DATA ──
 const MOCK_REELS = [
-  { id:'r1', category:'Fitness', tag:'WORKOUT',
+  {
+    id:'r1', category:'Fitness', tag:'WORKOUT',
     title:'5 exercises every Indian man should do daily',
     channel:'Gaurav Taneja · Flying Beast', views:'9.2M subs',
     bg:'linear-gradient(160deg,#0d1520,#151020)', emoji:'💪',
-    url:'https://www.youtube.com/shorts/5qgHuQMOlhE',
-    thumb:'https://img.youtube.com/vi/5qgHuQMOlhE/mqdefault.jpg',
-    summary:['Core strength is the foundation — planks beat crunches every time','Compound movements like squats and deadlifts trigger more testosterone than isolation','Rest 48 hours between training the same muscle group for maximum growth'] },
-  { id:'r2', category:'Nutrition', tag:'NUTRITION',
+    url:'https://www.youtube.com/shorts/dQw4w9WgXcQ',
+    thumb:'https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg',
+    embedUrl:'https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&loop=1&playlist=dQw4w9WgXcQ&controls=0&modestbranding=1&rel=0&playsinline=1&enablejsapi=1',
+    summary:['Core strength is the foundation — planks beat crunches every time','Compound movements like squats and deadlifts trigger more testosterone','Rest 48 hours between training the same muscle group for maximum growth']
+  },
+  {
+    id:'r2', category:'Nutrition', tag:'NUTRITION',
     title:'High protein Indian breakfast under ₹50',
     channel:'Fit Tuber', views:'7.1M subs',
     bg:'linear-gradient(160deg,#0d1a10,#0d1520)', emoji:'🥗',
-    url:'https://www.youtube.com/shorts/KgMjDaONdIE',
-    thumb:'https://img.youtube.com/vi/KgMjDaONdIE/mqdefault.jpg',
-    summary:['Paneer, eggs, and curd are your cheapest high-protein staples in India','Besan chilla with curd gives you 22g protein for under ₹30','Skip the expensive protein bars — whole foods absorb better'] },
-  { id:'r3', category:'Wellness', tag:'WELLNESS',
-    title:'Morning routine that changed my life — 5 minutes only',
+    url:'https://www.youtube.com/shorts/jNQXAC9IVRw',
+    thumb:'https://img.youtube.com/vi/jNQXAC9IVRw/mqdefault.jpg',
+    embedUrl:'https://www.youtube.com/embed/jNQXAC9IVRw?autoplay=1&mute=1&loop=1&playlist=jNQXAC9IVRw&controls=0&modestbranding=1&rel=0&playsinline=1',
+    summary:['Paneer, eggs, and curd are your cheapest high-protein staples in India','Besan chilla with curd gives you 22g protein for under ₹30','Skip the expensive protein bars — whole foods absorb better']
+  },
+  {
+    id:'r3', category:'Wellness', tag:'WELLNESS',
+    title:'Morning routine that boosts testosterone naturally',
     channel:'BeerBiceps · Ranveer Allahbadia', views:'4.2M subs',
     bg:'linear-gradient(160deg,#1a0d10,#100d1a)', emoji:'🌅',
-    url:'https://www.youtube.com/shorts/LpWvqBiML7E',
-    thumb:'https://img.youtube.com/vi/LpWvqBiML7E/mqdefault.jpg',
-    summary:['Sunlight in first 30 minutes sets your circadian rhythm for the entire day','Delay caffeine 90 minutes after waking — lets natural cortisol peak first','5 minutes of breathwork reduces morning cortisol spike by up to 23%'] },
-  { id:'r4', category:'Fitness', tag:'WORKOUT',
+    url:'https://www.youtube.com/shorts/M7lc1UVf-VE',
+    thumb:'https://img.youtube.com/vi/M7lc1UVf-VE/mqdefault.jpg',
+    embedUrl:'https://www.youtube.com/embed/M7lc1UVf-VE?autoplay=1&mute=1&loop=1&playlist=M7lc1UVf-VE&controls=0&modestbranding=1&rel=0&playsinline=1',
+    summary:['Sunlight in first 30 minutes sets your circadian rhythm for the entire day','Delay caffeine 90 minutes after waking — lets natural cortisol peak first','5 minutes of breathwork reduces morning cortisol spike by up to 23%']
+  },
+  {
+    id:'r4', category:'Fitness', tag:'WORKOUT',
     title:'Build chest at home — no equipment needed',
     channel:'Guru Mann Fitness', views:'6.8M subs',
     bg:'linear-gradient(160deg,#0a0d1a,#0d1a0d)', emoji:'🏋️',
-    url:'https://www.youtube.com/shorts/j9Uvh7RRnkE',
-    thumb:'https://img.youtube.com/vi/j9Uvh7RRnkE/mqdefault.jpg',
-    summary:['Push-up variations can fully replace the bench press for chest development','Wide grip hits outer chest, narrow grip isolates triceps and inner chest','Progressive overload at home: slow the negative to 4 seconds per rep'] },
-  { id:'r5', category:'Nutrition', tag:'NUTRITION',
+    url:'https://www.youtube.com/shorts/FTQbiNvZqaY',
+    thumb:'https://img.youtube.com/vi/FTQbiNvZqaY/mqdefault.jpg',
+    embedUrl:'https://www.youtube.com/embed/FTQbiNvZqaY?autoplay=1&mute=1&loop=1&playlist=FTQbiNvZqaY&controls=0&modestbranding=1&rel=0&playsinline=1',
+    summary:['Push-up variations can fully replace the bench press for chest development','Wide grip hits outer chest, narrow grip isolates triceps and inner chest','Slow the negative to 4 seconds per rep for progressive overload at home']
+  },
+  {
+    id:'r5', category:'Nutrition', tag:'NUTRITION',
     title:'Is your whey protein fake? Test it right now',
     channel:'Gaurav Taneja', views:'9.2M subs',
     bg:'linear-gradient(160deg,#1a0d0a,#100d1a)', emoji:'🧪',
-    url:'https://www.youtube.com/shorts/S7pBm5zVqUA',
-    thumb:'https://img.youtube.com/vi/S7pBm5zVqUA/mqdefault.jpg',
-    summary:['Foam test: shake with water — real whey foams, fake whey stays flat','Check for Informed Sport or Labdoor certification on the label','MuscleBlaze, Optimum Nutrition, and MyProtein are consistently tested clean in India'] },
-  { id:'r6', category:'Wellness', tag:'WELLNESS',
-    title:'Cold shower benefits — testosterone and recovery science',
+    url:'https://www.youtube.com/shorts/CvBfHwUxHIk',
+    thumb:'https://img.youtube.com/vi/CvBfHwUxHIk/mqdefault.jpg',
+    embedUrl:'https://www.youtube.com/embed/CvBfHwUxHIk?autoplay=1&mute=1&loop=1&playlist=CvBfHwUxHIk&controls=0&modestbranding=1&rel=0&playsinline=1',
+    summary:['Foam test: shake with water — real whey foams, fake whey stays flat','Check for Informed Sport or Labdoor certification on the label','MuscleBlaze, Optimum Nutrition, and MyProtein are tested clean in India']
+  },
+  {
+    id:'r6', category:'Wellness', tag:'WELLNESS',
+    title:'Cold shower science — testosterone and recovery',
     channel:'Jeet Selal Aesthetics', views:'3.1M subs',
     bg:'linear-gradient(160deg,#0a1a1a,#0d0d1a)', emoji:'🚿',
-    url:'https://www.youtube.com/shorts/nVMTFTyZpDY',
-    thumb:'https://img.youtube.com/vi/nVMTFTyZpDY/mqdefault.jpg',
-    summary:['Cold exposure raises norepinephrine by 300% — the focus and alertness neurotransmitter','Start with 30 seconds, build to 2 minutes over 2 weeks','Best time: morning before workout, NOT immediately after — wait 4 hours post-training'] },
+    url:'https://www.youtube.com/shorts/xvFZjo5PgG0',
+    thumb:'https://img.youtube.com/vi/xvFZjo5PgG0/mqdefault.jpg',
+    embedUrl:'https://www.youtube.com/embed/xvFZjo5PgG0?autoplay=1&mute=1&loop=1&playlist=xvFZjo5PgG0&controls=0&modestbranding=1&rel=0&playsinline=1',
+    summary:['Cold exposure raises norepinephrine by 300% — focus and alertness neurotransmitter','Start with 30 seconds, build to 2 minutes over 2 weeks','Best time: morning before workout, NOT immediately after training']
+  },
 ];
 
 const EVENTS_DATA = [
@@ -1536,26 +1730,99 @@ let userCity = 'your city';
 let userCityWeek = 'Week 3';
 
 async function detectLocation() {
+  // Show location permission prompt to user
+  showLocationPrompt();
+}
+
+function showLocationPrompt() {
+  // Create a friendly location permission card
+  const existing = document.getElementById('location-prompt');
+  if (existing) return;
+
+  const prompt = document.createElement('div');
+  prompt.id = 'location-prompt';
+  prompt.style.cssText = `
+    position:fixed;bottom:90px;left:50%;transform:translateX(-50%);
+    width:calc(100% - 32px);max-width:400px;
+    background:var(--navy2);border:1px solid rgba(196,30,58,0.25);
+    border-radius:14px;padding:16px;z-index:150;
+    box-shadow:0 8px 32px rgba(0,0,0,0.4);
+    animation:fadeIn 0.3s ease;
+  `;
+  prompt.innerHTML = `
+    <div style="display:flex;align-items:flex-start;gap:12px;">
+      <div style="font-size:24px;flex-shrink:0;">📍</div>
+      <div style="flex:1;">
+        <div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:600;color:var(--offwhite);margin-bottom:4px;">See events near you</div>
+        <div style="font-size:12px;color:var(--muted2);margin-bottom:12px;">Allow location access to show fitness events, run clubs and wellness workshops in your city.</div>
+        <div style="display:flex;gap:8px;">
+          <button onclick="requestGeoLocation()" style="flex:1;padding:9px;background:var(--crimson);border:none;border-radius:999px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;">Allow location</button>
+          <button onclick="useIPLocation()" style="flex:1;padding:9px;background:var(--navy3);border:1px solid var(--border);border-radius:999px;color:var(--muted2);font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;">Use approximate</button>
+        </div>
+      </div>
+      <div onclick="dismissLocationPrompt()" style="font-size:18px;color:var(--muted);cursor:pointer;flex-shrink:0;padding:2px;">✕</div>
+    </div>
+  `;
+  document.getElementById('app').appendChild(prompt);
+
+  // Auto-dismiss after 8 seconds
+  setTimeout(dismissLocationPrompt, 8000);
+}
+
+function dismissLocationPrompt() {
+  const el = document.getElementById('location-prompt');
+  if (el) el.remove();
+}
+
+function requestGeoLocation() {
+  dismissLocationPrompt();
+  if (!navigator.geolocation) {
+    useIPLocation();
+    return;
+  }
+  toast('Getting your location…');
+  navigator.geolocation.getCurrentPosition(
+    async (pos) => {
+      try {
+        // Use OpenStreetMap Nominatim for reverse geocoding (free, no key)
+        const r = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json&addressdetails=1`,
+          { headers: { 'Accept-Language': 'en' } }
+        );
+        const d = await r.json();
+        const city = d.address?.city
+          || d.address?.town
+          || d.address?.suburb
+          || d.address?.county
+          || d.address?.state_district
+          || 'your city';
+        userCity = city;
+        applyLocationToUI(city);
+        toast('📍 Showing events near ' + city);
+      } catch(e) {
+        useIPLocation();
+      }
+    },
+    (err) => {
+      console.warn('Geolocation denied:', err);
+      useIPLocation();
+    },
+    { timeout: 8000, maximumAge: 300000 }
+  );
+}
+
+async function useIPLocation() {
+  dismissLocationPrompt();
   try {
-    // Use IP-based geolocation (no permission needed)
     const res = await fetch('https://ipapi.co/json/');
     const data = await res.json();
     if (data.city) {
       userCity = data.city;
-      applyLocationToUI(userCity);
+      applyLocationToUI(data.city);
+      toast('📍 Location: ' + data.city + ' (approximate)');
     }
   } catch(e) {
-    // Fallback: try browser geolocation
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(async pos => {
-        try {
-          const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json`);
-          const d = await r.json();
-          userCity = d.address?.city || d.address?.town || d.address?.state_district || 'your city';
-          applyLocationToUI(userCity);
-        } catch(e2) {}
-      }, () => {});
-    }
+    applyLocationToUI('Delhi'); // final fallback
   }
 }
 
@@ -1690,6 +1957,138 @@ function saveProfile() {
   toast('Profile saved ✓');
   addXP(10, 'Profile updated · +10 XP');
   setTimeout(() => closeProfile(), 800);
+}
+
+// ══════════════════════════════════════════════════════
+//  NOTIFICATIONS
+// ══════════════════════════════════════════════════════
+const NOTIFICATIONS = [
+  { icon:'🔥', bg:'rgba(196,30,58,0.1)', text:'You have a 7-day streak! Keep it going today.', time:'Just now', unread:true },
+  { icon:'📅', bg:'rgba(0,196,255,0.1)', text:'Calisthenics Workshop is tomorrow at 6 PM in your city.', time:'2 hours ago', unread:true },
+  { icon:'🏆', bg:'rgba(184,150,74,0.1)', text:'Arjun S. overtook you on the leaderboard. Close the gap!', time:'5 hours ago', unread:true },
+  { icon:'💡', bg:'rgba(0,255,135,0.08)', text:'New article: "5 compound lifts every man needs" — 3 min read.', time:'Yesterday', unread:false },
+  { icon:'🩺', bg:'rgba(196,30,58,0.08)', text:'Your RxAI Coach has new fitness insights for you.', time:'Yesterday', unread:false },
+  { icon:'💧', bg:'rgba(59,130,246,0.1)', text:'Reminder: Hit your 8 glasses of water today.', time:'2 days ago', unread:false },
+];
+
+let notifOpen = false;
+
+function openNotifications() {
+  document.getElementById('notif-panel').classList.add('open');
+  document.getElementById('notif-overlay').classList.add('open');
+  notifOpen = true;
+  buildNotifications();
+  // Clear pip
+  const pip = document.getElementById('notif-pip');
+  if (pip) pip.style.display = 'none';
+}
+
+function closeNotifications() {
+  document.getElementById('notif-panel').classList.remove('open');
+  document.getElementById('notif-overlay').classList.remove('open');
+  notifOpen = false;
+}
+
+function buildNotifications() {
+  const scroll = document.getElementById('notif-scroll');
+  if (!scroll) return;
+  scroll.innerHTML = NOTIFICATIONS.map((n, i) => `
+    <div class="notif-item ${n.unread ? 'unread' : ''}" onclick="dismissNotif(${i})">
+      <div class="notif-icon" style="background:${n.bg}">${n.icon}</div>
+      <div class="notif-body">
+        <div class="notif-text">${n.text}</div>
+        <div class="notif-time">${n.time}</div>
+      </div>
+      ${n.unread ? '<div class="notif-unread-dot"></div>' : ''}
+    </div>`).join('');
+}
+
+function dismissNotif(i) {
+  NOTIFICATIONS[i].unread = false;
+  buildNotifications();
+}
+
+// ══════════════════════════════════════════════════════
+//  MEAL LOGGING
+// ══════════════════════════════════════════════════════
+const QUICK_MEALS = [
+  { emoji:'🍳', name:'Eggs & toast', cal:280, protein:18 },
+  { emoji:'🍗', name:'Chicken breast', cal:165, protein:31 },
+  { emoji:'🥗', name:'Dal & roti', cal:380, protein:14 },
+  { emoji:'🥤', name:'Whey shake', cal:150, protein:30 },
+  { emoji:'🍚', name:'Chicken rice bowl', cal:520, protein:38 },
+  { emoji:'🥜', name:'Peanut butter toast', cal:320, protein:12 },
+  { emoji:'🧀', name:'Paneer curry', cal:280, protein:18 },
+  { emoji:'🍌', name:'Banana + curd', cal:180, protein:8 },
+];
+
+function openMealModal() {
+  const grid = document.getElementById('meal-quick-grid');
+  if (grid) {
+    grid.innerHTML = QUICK_MEALS.map((m, i) => `
+      <div class="meal-quick-btn" onclick="logQuickMeal(${i})">
+        <div class="meal-quick-emoji">${m.emoji}</div>
+        <div class="meal-quick-name">${m.name}</div>
+        <div class="meal-quick-cal">${m.cal} kcal · ${m.protein}g protein</div>
+      </div>`).join('');
+  }
+  document.getElementById('meal-modal').classList.add('open');
+}
+
+function closeMealModal() {
+  document.getElementById('meal-modal').classList.remove('open');
+}
+
+function logQuickMeal(i) {
+  const m = QUICK_MEALS[i];
+  // Add to meal list
+  const list = document.getElementById('meal-list');
+  if (list) {
+    const now = new Date();
+    const time = now.toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'});
+    const row = document.createElement('div');
+    row.className = 'meal-row';
+    row.innerHTML = `
+      <div class="meal-ico">${m.emoji}</div>
+      <div class="meal-data">
+        <div class="meal-n">${m.name}</div>
+        <div class="meal-s">${time} · ${m.protein}g protein</div>
+      </div>
+      <div class="meal-kcal">${m.cal} kcal</div>`;
+    list.appendChild(row);
+  }
+  closeMealModal();
+  addXP(10, 'Meal logged · +10 XP');
+  toast(m.emoji + ' ' + m.name + ' logged!');
+}
+
+function searchMeal() {
+  const q = document.getElementById('meal-search').value.trim();
+  if (!q) return;
+  closeMealModal();
+  switchTo('ai');
+  setTimeout(() => sendAIMsg('Give me the calories, protein, carbs and fat for: ' + q + '. Then ask if I want to log it.'), 300);
+}
+
+// ══════════════════════════════════════════════════════
+//  WORKOUT STARTER
+// ══════════════════════════════════════════════════════
+function startWorkout() {
+  switchTo('ai');
+  setTimeout(() => sendAIMsg('I\'m about to start a workout right now. Give me a 20-minute routine based on my goals. Be specific with sets, reps and rest periods.'), 300);
+}
+
+// ══════════════════════════════════════════════════════
+//  XP LEVEL UP CHECK
+// ══════════════════════════════════════════════════════
+function checkLevelUp(oldXp, newXp) {
+  const oldLevel = Math.floor(oldXp / 250) + 1;
+  const newLevel = Math.floor(newXp / 250) + 1;
+  if (newLevel > oldLevel) {
+    const levelNames = ['Rookie','Grinder','Iron Man','Alpha','Legend','Champion'];
+    const name = levelNames[Math.min(newLevel-1, levelNames.length-1)];
+    setTimeout(() => toast('🏆 Level up! You are now Level ' + newLevel + ' — ' + name), 500);
+  }
 }
 
 async function init() {
@@ -1876,8 +2275,13 @@ function renderReels() {
     const iL = liked.has(r.id), iS = saved.has(r.id);
     return `
     <div class="reel-item ${pos}" ontouchstart="ts(event)" ontouchend="te(event)" onclick="openDrawer('${r.id}')">
-      <div class="ri-bg" style="background:${r.bg};position:relative;">
-        ${r.thumb ? `<img src="${r.thumb}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;" onerror="this.remove()">` : `<div class="ri-emoji-bg">${r.emoji}</div>`}
+      <div class="ri-bg" style="background:${r.bg};position:relative;overflow:hidden;">
+        ${r.embedUrl
+          ? `<iframe src="${r.embedUrl}" style="position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:none;" allow="autoplay;encrypted-media" allowfullscreen></iframe>`
+          : r.thumb
+            ? `<img src="${r.thumb}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" onerror="this.remove()">`
+            : `<div class="ri-emoji-bg">${r.emoji}</div>`
+        }
       </div>
       <div class="ri-vignette"></div>
       <div class="ri-top-grad"></div>
@@ -2148,544 +2552,73 @@ async function sendAI(){
 async function sendAIMsg(text){
   addUserMsg(text);
   aiHistory.push({role:'user',content:text});
-  const loader=addLoader(); addXP(5,null);
-  const modeContext={
-    'Fitness':'Focus on training, exercise science, workout programming, recovery.',
-    'Nutrition':'Focus on diet, macros, meal planning, Indian food context.',
-    'Sleep':'Focus on sleep quality, circadian rhythm, recovery optimisation.',
-    "Men's Health":"Focus on testosterone, hormones, sexual health, men's wellness.",
-  };
-  try{
-    const systemPrompt = `You are RxAI Coach inside RxMen — India's men's health platform.
-User: ${currentUser.name||'the user'}, based in ${currentUser.city||'India'}, Level 4, 7-day streak, 1,840 kcal consumed today.
-Current coach mode: ${coachMode}. ${modeContext[coachMode]||''}
-Tone: direct, evidence-based, understated. Like a specialist who also trains. No hype. Use Indian context naturally. Use **bold** for key numbers/terms. 3-4 short paragraphs max. For medical issues, advise seeing a doctor.`;
+  const loader=addLoader();
+  addXP(5,null);
 
-    const res=await fetch('/api/chat',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({ messages:aiHistory, system:systemPrompt })
+  const systemPrompt=`You are RxAI Coach inside RxMen — India's first complete men's health platform.
+User: ${currentUser.name||'the user'}, based in ${currentUser.city||'India'}, Level 4, 7-day streak.
+Current coach mode: ${coachMode}.
+Tone: direct, evidence-based, no hype. Use Indian context naturally. Use **bold** for key terms. 3-4 short paragraphs max. For medical issues, advise seeing a doctor.`;
+
+  // Try DeepSeek first (cheap and fast)
+  if (CONFIG.DEEPSEEK_API_KEY && CONFIG.DEEPSEEK_API_KEY !== 'YOUR_DEEPSEEK_API_KEY') {
+    try {
+      const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + CONFIG.DEEPSEEK_API_KEY,
+        },
+        body: JSON.stringify({
+          model: 'deepseek-chat',
+          max_tokens: 800,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            ...aiHistory
+          ],
+        }),
+      });
+      const data = await res.json();
+      if (data.choices?.[0]?.message?.content) {
+        loader.remove();
+        const reply = data.choices[0].message.content;
+        addBotMsg(reply, true);
+        aiHistory.push({role:'assistant',content:reply});
+        setFollowups(coachMode);
+        addXP(20,'Insight unlocked · +20 XP');
+        return;
+      }
+    } catch(e) { console.warn('DeepSeek failed:', e); }
+  }
+
+  // Try Claude via /api/chat serverless
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ messages: aiHistory, system: systemPrompt })
     });
-    const data=await res.json();loader.remove();
-    const reply=data.content?.map(b=>b.text||'').join('')||'Unable to respond. Try again.';
-    addBotMsg(reply, true);
-    aiHistory.push({role:'assistant',content:reply});
-    setFollowups(coachMode);
-    addXP(20,'Insight unlocked · +20 XP');
-  }catch(e){
-    loader.remove();
-    addBotMsg('Connection issue. Please check your network and try again.');
-  }
-}
-
-// Voice input
-function toggleVoice(){
-  const btn=document.getElementById('voice-btn');
-  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){
-    toast('Voice input not supported in this browser');return;
-  }
-  if(isListening){
-    isListening=false;btn.classList.remove('listening');
-    if(window._recog)window._recog.stop();
-    return;
-  }
-  isListening=true;btn.classList.add('listening');toast('Listening…');
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  const recog=new SR();recog.lang='en-IN';recog.continuous=false;
-  window._recog=recog;
-  recog.onresult=e=>{
-    const txt=e.results[0][0].transcript;
-    document.getElementById('ai-input').value=txt;
-    isListening=false;btn.classList.remove('listening');
-  };
-  recog.onerror=()=>{isListening=false;btn.classList.remove('listening');toast('Voice input failed — try typing');};
-  recog.onend=()=>{isListening=false;btn.classList.remove('listening');};
-  recog.start();
-}
-
-function shareInsight(){toast('Insight copied — ready to share!');}
-
-// ── COMMUNITY ──
-function buildCommunity(){
-  buildLeaderboard();buildFriendComp();buildChallenges();buildBadges();
-  document.getElementById('comm-events').innerHTML=EVENTS_DATA.map(ev=>evCardHTML(ev)).join('');
-}
-
-function buildLeaderboard(){
-  const ranks=['🥇','🥈','🥉','4','5'];
-  const colors=['#FFD700','#C0C0C0','#CD7F32','var(--muted)','var(--muted)'];
-  document.getElementById('lb-card').innerHTML=`
-    <div class="lb-hdr"><div class="lb-hdr-t">Top in Delhi</div><div class="lb-period">Week 3 · Apr 2026</div></div>
-    ${LEADERBOARD.map((u,i)=>`
-    <div class="lb-row ${u.isYou?'you':''}" onclick="${u.isYou?`toast("That's you — keep pushing")`:`toast('${u.name} · ${u.xp.toLocaleString()} XP this week')`}">
-      <div class="lb-rank" style="color:${colors[i]}">${ranks[i]}</div>
-      <div class="lb-avi" style="background:${u.bg};color:${u.fg}">${u.name.slice(0,2).toUpperCase()}</div>
-      <div class="lb-data">
-        <div class="lb-name-row">${u.name}${u.isYou?' <span class="you-tag">YOU</span>':''}</div>
-        <div class="lb-streak">🔥 ${u.streak}</div>
-      </div>
-      <div class="lb-xp-v">${u.xp.toLocaleString()}</div>
-    </div>`).join('')}`;
-}
-
-function buildFriendComp(){
-  const top=LEADERBOARD[0];const you=LEADERBOARD[3];
-  const gap=top.xp-you.xp;
-  document.getElementById('friend-comp').innerHTML=`
-    <div class="fc-label">Closest competitor</div>
-    <div class="fc-row">
-      <div class="fc-avi" style="background:${top.bg};color:${top.fg}">${top.name.slice(0,2).toUpperCase()}</div>
-      <div class="fc-info">
-        <div class="fc-name">${top.name} · ${top.xp.toLocaleString()} XP</div>
-        <div class="fc-track"><div class="fc-fill" style="width:100%;background:linear-gradient(90deg,var(--gold),#8B7340)"></div></div>
-      </div>
-      <div class="fc-xp">${top.xp.toLocaleString()}</div>
-    </div>
-    <div class="fc-row">
-      <div class="fc-avi" style="background:${you.bg};color:${you.fg}">UJ</div>
-      <div class="fc-info">
-        <div class="fc-name">You · ${you.xp.toLocaleString()} XP</div>
-        <div class="fc-track"><div class="fc-fill" style="width:${Math.round((you.xp/top.xp)*100)}%;background:var(--crimson)"></div></div>
-      </div>
-      <div class="fc-xp">${you.xp.toLocaleString()}</div>
-    </div>
-    <div class="fc-cta" onclick="switchTo('ai');setTimeout(()=>sendAIMsg('How do I earn more XP faster to catch up on the leaderboard?'),300)">
-      ${gap.toLocaleString()} XP behind — ask coach how to close the gap →
-    </div>`;
-}
-
-function buildChallenges(){
-  document.getElementById('challenge-feed').innerHTML=CHALLENGES.map(c=>`
-    <div class="chal-card">
-      <div class="chal-top">
-        <div class="chal-name">${c.name}</div>
-        <div class="chal-xp">${c.xp}</div>
-      </div>
-      <div class="chal-meta">${c.meta}</div>
-      <div class="chal-bar"><div class="chal-fill" style="width:${c.pct}%"></div></div>
-      <div class="chal-footer">
-        <div class="chal-participants">👥 ${c.participants.toLocaleString()} men joined</div>
-        <button class="chal-join-btn ${joinedChallenges.has(c.id)?'joined':'join'}" id="cj-${c.id}" onclick="joinChallenge('${c.id}')">
-          ${joinedChallenges.has(c.id)?'✓ Joined':'Join'}
-        </button>
-      </div>
-    </div>`).join('');
-}
-
-function joinChallenge(id){
-  if(joinedChallenges.has(id)){toast('Already joined this challenge');return;}
-  joinedChallenges.add(id);
-  const btn=document.getElementById('cj-'+id);
-  if(btn){btn.textContent='✓ Joined';btn.className='chal-join-btn joined';}
-  addXP(15,'Challenge joined · +15 XP');
-}
-
-function buildBadges(){
-  document.getElementById('badges').innerHTML=BADGES.map(b=>`
-    <div class="badge" onclick="toast('${b.earned?b.name+' — earned ✓':'Keep going to unlock '+b.name}')">
-      <div class="badge-wrap ${b.earned?'earned':'locked'}">${b.icon}</div>
-      <div class="badge-name">${b.name}</div>
-    </div>`).join('');
-}
-
-function shareStreak(){
-  toast('Health card copied — share it anywhere!');
-  addXP(10,'Shared · +10 XP');
-}
-
-// ── RSVP ──
-function showRSVP(id){
-  const ev=EVENTS_DATA.find(e=>e.id===id);if(!ev)return;
-  if(joinedEvents.has(id)){
-    toast('You\'re already going to this event');return;
-  }
-  rsvpTarget=id;
-  document.getElementById('rsvp-emoji').textContent=ev.emoji;
-  document.getElementById('rsvp-name').textContent=ev.name;
-  document.getElementById('rsvp-detail').textContent=`📍 ${ev.loc}\n🕐 ${ev.time}, ${ev.month} ${ev.day}\n👥 ${ev.going} men already going`;
-  document.getElementById('rsvp-modal').classList.add('open');
-}
-
-function closeRSVP(){
-  document.getElementById('rsvp-modal').classList.remove('open');
-  rsvpTarget=null;
-}
-
-function confirmRSVP(){
-  if(!rsvpTarget)return;
-  joinedEvents.add(rsvpTarget);
-  const ev=EVENTS_DATA.find(e=>e.id===rsvpTarget);
-  closeRSVP();
-  // Update all buttons with this event id
-  const btn=document.getElementById('ev-btn-'+rsvpTarget);
-  const going=document.getElementById('ev-going-'+rsvpTarget);
-  if(btn){btn.textContent='✓ Going';btn.className='ev-join-btn joined';}
-  if(going&&ev){going.textContent=(ev.going+1)+' going';}
-  addXP(20,'Event joined · +20 XP');
-  toast('You\'re in! Added to your calendar');
-  // Rebuild community events too
-  document.getElementById('comm-events').innerHTML=EVENTS_DATA.map(ev=>evCardHTML(ev)).join('');
-  document.getElementById('home-events').innerHTML=EVENTS_DATA.slice(0,2).map(ev=>evCardHTML(ev)).join('');
-}
-
-function addToCalendar(name){
-  toast('Added "'+name+'" to calendar');
-}
-
-// ── NUTRITION ──
-function buildNutrition(){
-  buildWeeklyChart();
-  document.getElementById('macros-grid').innerHTML=MACROS.map(m=>`
-    <div class="macro-box">
-      <div class="macro-val" style="color:${m.color}">${m.val}${m.unit}</div>
-      <div class="macro-lbl">${m.label}</div>
-      <div class="macro-track"><div class="macro-fill-bar" style="width:${m.pct}%;background:${m.color}"></div></div>
-    </div>`).join('');
-  buildWater();
-  buildSupplements();
-  document.getElementById('meal-list').innerHTML=MEALS.map(m=>`
-    <div class="meal-row">
-      <div class="meal-ico">${m.emoji}</div>
-      <div class="meal-data"><div class="meal-n">${m.name}</div><div class="meal-s">${m.time} · ${m.protein}g protein</div></div>
-      <div class="meal-kcal">${m.cal} kcal</div>
-    </div>`).join('');
-}
-
-function buildWeeklyChart(){
-  const maxP=Math.max(...WEEK_PROTEIN);
-  document.getElementById('weekly-chart').innerHTML=`
-    <div class="wc-hdr">
-      <div class="wc-title">Protein (g)</div>
-      <div class="wc-avg">Avg ${Math.round(WEEK_PROTEIN.reduce((a,b)=>a+b)/7)}g / day</div>
-    </div>
-    <div class="wc-bars">
-      ${WEEK_PROTEIN.map((v,i)=>{
-        const h=Math.round((v/maxP)*56);
-        const isToday=i===6;
-        const col=isToday?'var(--crimson)':'rgba(184,150,74,0.4)';
-        return `<div class="wc-col">
-          <div class="wc-bar" style="height:${h}px;background:${col}"></div>
-          <div class="wc-day" style="color:${isToday?'var(--crimson2)':'var(--muted)'}">${WEEK_DAYS[i]}</div>
-        </div>`;
-      }).join('')}
-    </div>`;
-}
-
-function buildWater(){
-  const total=8;
-  document.getElementById('water-count').textContent=waterGlasses+' / '+total+' glasses';
-  document.getElementById('water-glasses').innerHTML=Array.from({length:total},(_,i)=>{
-    const filled=i<waterGlasses;
-    return `<div class="glass ${filled?'filled':''}" onclick="addWater(${i})" title="Glass ${i+1}">
-      <div class="glass-fill" style="height:${filled?'100%':'0%'}"></div>
-    </div>`;
-  }).join('');
-}
-
-function addWater(idx){
-  waterGlasses=Math.min(idx+1,8);
-  buildWater();
-  if(waterGlasses===8){addXP(10,'Water goal hit · +10 XP');}
-  else toast('💧 '+waterGlasses+' / 8 glasses');
-}
-
-function buildSupplements(){
-  document.getElementById('supp-list').innerHTML=SUPPLEMENTS.map((s,i)=>`
-    <div class="supp-row">
-      <div class="supp-name">${s.name}</div>
-      <div class="supp-time">${s.time}</div>
-      <div class="supp-check ${suppChecked.has(i)?'checked':''}" onclick="toggleSupp(${i})">
-        ${suppChecked.has(i)?'✓':''}
-      </div>
-    </div>`).join('');
-}
-
-function toggleSupp(i){
-  if(suppChecked.has(i))suppChecked.delete(i);
-  else{suppChecked.add(i);if(suppChecked.size===SUPPLEMENTS.length)addXP(15,'All supps taken · +15 XP');}
-  buildSupplements();
-}
-
-function logMealAI(){
-  switchTo('ai');
-  setTimeout(()=>sendAIMsg("I want to log a meal. Suggest high-protein dinner options under 400 kcal that I can make or order in Delhi."),300);
-}
-
-function goAskNutrition(){
-  switchTo('ai');
-  setTimeout(()=>sendAIMsg("Give me a personalised meal plan for the rest of today based on what I've already eaten: eggs & oats (340 kcal), chicken rice bowl (580 kcal), whey shake (160 kcal), dal & roti (420 kcal)."),300);
-}
-
-// ── GAMIFICATION ──
-function addXP(amt,msg){
-  xp=Math.min(xp+amt,1000);
-  document.getElementById('xp-bar').style.width=xp+'%';
-  document.getElementById('xp-label').textContent=xp+' / 1000 XP';
-  if(msg){const el=document.getElementById('xp-pop');el.textContent='+'+msg;el.classList.add('on');setTimeout(()=>el.classList.remove('on'),1900);}
-}
-
-function completeChallenge(){
-  addXP(50,'50 XP');streak++;
-  document.getElementById('streak-num').textContent=streak;
-  buildHomeStats();buildStreakCal();
-}
-
-// ── NAVIGATION ──
-const TABS=['home','reels','ai','community','nutrition'];
-function switchTo(tab){
-  currentTab=tab;
-  TABS.forEach(t=>{
-    document.getElementById('scr-'+t)?.classList.toggle('active',t===tab);
-    const n=document.getElementById('nav-'+t);if(n)n.classList.toggle('on',t===tab);
-  });
-}
-
-// ── UTILS ──
-let toastT;
-function toast(msg){
-  const el=document.getElementById('toast-el');
-  el.textContent=msg;el.classList.add('on');
-  clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('on'),2600);
-}
-
-// ══════════════════════════════════════════════════════
-//  AUTH SYSTEM
-// ══════════════════════════════════════════════════════
-let authMode = 'login';
-let authMethod = 'phone';
-let resendInterval = null;
-let otpCode = '';
-
-function setAuthMode(mode) {
-  authMode = mode;
-  document.getElementById('tab-login').classList.toggle('on', mode === 'login');
-  document.getElementById('tab-signup').classList.toggle('on', mode === 'signup');
-  document.getElementById('name-group').style.display = mode === 'signup' ? 'block' : 'none';
-  document.getElementById('pass-label').textContent = mode === 'signup' ? 'Create password' : 'Password';
-  document.getElementById('forgot-link').style.display = mode === 'login' ? 'block' : 'none';
-  document.getElementById('email-auth-btn').textContent = mode === 'signup' ? 'Create account' : 'Log in';
-}
-
-function setMethod(method) {
-  authMethod = method;
-  document.getElementById('method-phone').classList.toggle('on', method === 'phone');
-  document.getElementById('method-email').classList.toggle('on', method === 'email');
-  document.getElementById('flow-phone').style.display = method === 'phone' ? 'block' : 'none';
-  document.getElementById('flow-email').style.display = method === 'email' ? 'block' : 'none';
-}
-
-function validatePhone() {
-  const val = document.getElementById('phone-input').value;
-  const valid = val.length === 10;
-  document.getElementById('phone-input').classList.toggle('error', val.length > 0 && !valid);
-  document.getElementById('phone-error').style.display = val.length > 0 && !valid ? 'block' : 'none';
-  document.getElementById('send-otp-btn').disabled = !valid;
-  return valid;
-}
-
-function sendOTP() {
-  if (!validatePhone()) return;
-  const phone = document.getElementById('phone-input').value;
-  const code = document.getElementById('country-code').value;
-  const full = code + ' ' + phone;
-  otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-  document.getElementById('step-phone-input').style.display = 'none';
-  document.getElementById('step-otp').style.display = 'block';
-  document.getElementById('otp-sent-to').textContent = full;
-  document.getElementById('otp-0').focus();
-  toast('Demo OTP: ' + otpCode + ' (auto-fills in 2s)');
-  setTimeout(() => {
-    otpCode.split('').forEach((d, i) => {
-      const box = document.getElementById('otp-' + i);
-      if (box) box.value = d;
-    });
-    document.getElementById('verify-otp-btn').disabled = false;
-    document.getElementById('verify-otp-btn').textContent = 'Verify & Continue';
-  }, 2000);
-  startResendTimer();
-}
-
-function otpInput(idx) {
-  const val = document.getElementById('otp-' + idx).value;
-  if (val && idx < 5) document.getElementById('otp-' + (idx+1)).focus();
-  const allFilled = Array.from({length:6}, (_,i) => document.getElementById('otp-'+i).value).every(v => v);
-  document.getElementById('verify-otp-btn').disabled = !allFilled;
-}
-
-function otpKey(e, idx) {
-  if (e.key === 'Backspace' && !document.getElementById('otp-'+idx).value && idx > 0)
-    document.getElementById('otp-'+(idx-1)).focus();
-}
-
-function verifyOTP() {
-  const entered = Array.from({length:6}, (_,i) => document.getElementById('otp-'+i).value).join('');
-  const btn = document.getElementById('verify-otp-btn');
-  btn.textContent = 'Verifying...'; btn.classList.add('loading'); btn.disabled = true;
-  setTimeout(() => {
-    if (entered === otpCode) {
-      const phone = document.getElementById('country-code').value + ' ' + document.getElementById('phone-input').value;
-      showLoginSuccess(phone, '');
-    } else {
-      btn.textContent = 'Verify & Continue'; btn.classList.remove('loading'); btn.disabled = false;
-      Array.from({length:6}, (_,i) => { const b=document.getElementById('otp-'+i); b.classList.add('error'); b.value=''; });
-      document.getElementById('otp-0').focus();
-      toast('Incorrect OTP — try again');
+    if (res.ok) {
+      const data = await res.json();
+      const reply = data.content?.map(b=>b.text||'').join('') || '';
+      if (reply) {
+        loader.remove();
+        addBotMsg(reply, true);
+        aiHistory.push({role:'assistant',content:reply});
+        setFollowups(coachMode);
+        addXP(20,'Insight unlocked · +20 XP');
+        return;
+      }
     }
-  }, 1200);
+  } catch(e) { console.warn('Claude API failed:', e); }
+
+  // Fallback: smart pre-loaded response
+  loader.remove();
+  const reply = getSmartResponse(text);
+  addBotMsg(reply, true);
+  aiHistory.push({role:'assistant',content:reply});
+  setFollowups(coachMode);
+  addXP(15,'Response ready · +15 XP');
 }
 
-function backToPhone() {
-  document.getElementById('step-phone-input').style.display = 'block';
-  document.getElementById('step-otp').style.display = 'none';
-  clearInterval(resendInterval);
-}
-
-function startResendTimer() {
-  let secs = 30;
-  const link = document.getElementById('resend-link');
-  link.style.pointerEvents='none'; link.style.opacity='0.5';
-  clearInterval(resendInterval);
-  resendInterval = setInterval(() => {
-    secs--;
-    const t = document.getElementById('resend-timer');
-    if(t) t.textContent = secs;
-    if (secs <= 0) {
-      clearInterval(resendInterval);
-      if(link){ link.innerHTML='<span style="color:var(--crimson2);cursor:pointer;font-weight:500;" onclick="resendOTP()">Resend OTP</span>'; link.style.pointerEvents='auto'; link.style.opacity='1'; }
-    }
-  }, 1000);
-}
-
-function resendOTP() {
-  otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-  toast('New OTP: ' + otpCode + ' (auto-fills in 2s)');
-  Array.from({length:6}, (_,i) => { document.getElementById('otp-'+i).value=''; });
-  document.getElementById('verify-otp-btn').disabled = true;
-  setTimeout(() => { otpCode.split('').forEach((d,i)=>{ const b=document.getElementById('otp-'+i); if(b) b.value=d; }); document.getElementById('verify-otp-btn').disabled=false; }, 2000);
-  startResendTimer();
-}
-
-function validateEmail() {
-  const val = document.getElementById('email-input').value;
-  const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
-  document.getElementById('email-input').classList.toggle('error', val.length > 0 && !valid);
-  document.getElementById('email-error').style.display = val.length > 0 && !valid ? 'block' : 'none';
-  return valid;
-}
-
-function validatePass() {
-  const val = document.getElementById('pass-input').value;
-  const valid = val.length >= 8;
-  document.getElementById('pass-input').classList.toggle('error', val.length > 0 && !valid);
-  document.getElementById('pass-error').style.display = val.length > 0 && !valid ? 'block' : 'none';
-  return valid;
-}
-
-function togglePass() {
-  const inp = document.getElementById('pass-input');
-  inp.type = inp.type === 'password' ? 'text' : 'password';
-  document.getElementById('eye-btn').textContent = inp.type === 'password' ? '👁' : '🙈';
-}
-
-function emailAuth() {
-  if (!validateEmail() || !validatePass()) return;
-  const btn = document.getElementById('email-auth-btn');
-  const email = document.getElementById('email-input').value;
-  const nameInp = document.getElementById('name-input');
-  const name = nameInp ? nameInp.value.trim() : '';
-  btn.textContent = authMode === 'login' ? 'Logging in...' : 'Creating account...';
-  btn.classList.add('loading'); btn.disabled = true;
-  setTimeout(() => showLoginSuccess(email, name), 1400);
-}
-
-function forgotPassword() {
-  if (!validateEmail()) { document.getElementById('email-input').focus(); toast('Enter your email first'); return; }
-  toast('Password reset link sent to ' + document.getElementById('email-input').value);
-}
-
-function socialAuth(provider) {
-  if (provider === 'Google') {
-    // Simulate Google OAuth flow
-    toast('Redirecting to Google...');
-    // In production this would be: window.location.href = '/api/auth/google'
-    // For demo, show a name capture prompt after 1s
-    setTimeout(() => {
-      const name = prompt('Enter your Google account name (demo):') || 'Google User';
-      const email = (name.toLowerCase().replace(/\s+/g,'') + '@gmail.com');
-      showLoginSuccess(email, name);
-    }, 800);
-    return;
-  }
-  toast('Connecting to ' + provider + '...');
-  setTimeout(() => showLoginSuccess('user via ' + provider, provider + ' User'), 1500);
-}
-
-function showLoginSuccess(identifier) {
-  clearInterval(resendInterval);
-  // Directly hide login screen after brief success flash
-  const ls = document.getElementById('login-screen');
-  const body = document.querySelector('.login-body');
-  if (body) {
-    body.innerHTML = '<div class="login-success"><div class="success-ring">&#10003;</div><div class="success-title">Welcome to RxMen</div><div class="success-sub">Signed in as<br><strong style="color:var(--offwhite)">' + identifier + '</strong></div></div>';
-  }
-  setTimeout(() => {
-    if (ls) ls.classList.add('hidden');
-    // Force home screen active
-    switchTo('home');
-  }, 1400);
-}
-
-function openPanel() {
-  document.getElementById('side-panel').classList.add('open');
-  document.getElementById('panel-overlay').classList.add('open');
-  document.getElementById('panel-xp-val').textContent = xp + ' / 1000 XP';
-}
-function closePanel() {
-  document.getElementById('side-panel').classList.remove('open');
-  document.getElementById('panel-overlay').classList.remove('open');
-}
-function panelNav(section) {
-  closePanel();
-  if (section === 'profile') {
-    setTimeout(() => openProfile(), 300);
-    return;
-  }
-  if (section === 'goals') {
-    setTimeout(() => { openProfile(); setTimeout(() => document.getElementById('goal-grid')?.scrollIntoView({behavior:'smooth'}), 400); }, 300);
-    return;
-  }
-  const msgs = {
-    subscription:'RxMen Pro — launching soon! 🚀',
-    notifications:'Notification settings — coming in v1.1',
-    privacy:'Your data is encrypted end-to-end ✓',
-    help:'Email us: support@rxmen.in',
-  };
-  setTimeout(()=>toast(msgs[section]||'Coming soon'),300);
-}
-function confirmLogout() {
-  closePanel();
-  setTimeout(() => {
-    const ls = document.getElementById('login-screen');
-    if (!ls) return;
-    // Reset form state
-    const body = ls.querySelector('.login-body');
-    if (body) {
-      // Reset to phone tab
-      const tabs = body.querySelector('#auth-tabs');
-      const phoneFlow = body.querySelector('#flow-phone');
-      const stepOtp = body.querySelector('#step-otp');
-      const stepPhone = body.querySelector('#step-phone-input');
-      if (stepOtp) stepOtp.style.display = 'none';
-      if (stepPhone) stepPhone.style.display = 'block';
-    }
-    ls.classList.remove('hidden');
-    // Reset XP and state for demo
-    toast('Logged out successfully');
-  }, 300);
-}
-
-init();
-
-</script>
-</body>
-</html>
+>

@@ -2091,6 +2091,230 @@ function checkLevelUp(oldXp, newXp) {
   }
 }
 
+// ══════════════════════════════════════════════════════
+//  AUTH SYSTEM
+// ══════════════════════════════════════════════════════
+let authMode = 'login';
+let authMethod = 'phone';
+let resendInterval = null;
+let otpCode = '';
+
+function setAuthMode(mode) {
+  authMode = mode;
+  document.getElementById('tab-login')?.classList.toggle('on', mode === 'login');
+  document.getElementById('tab-signup')?.classList.toggle('on', mode === 'signup');
+  const nameGroup = document.getElementById('name-group');
+  if (nameGroup) nameGroup.style.display = mode === 'signup' ? 'block' : 'none';
+  const passLabel = document.getElementById('pass-label');
+  if (passLabel) passLabel.textContent = mode === 'signup' ? 'Create password' : 'Password';
+  const forgotLink = document.getElementById('forgot-link');
+  if (forgotLink) forgotLink.style.display = mode === 'login' ? 'block' : 'none';
+  const emailBtn = document.getElementById('email-auth-btn');
+  if (emailBtn) emailBtn.textContent = mode === 'signup' ? 'Create account' : 'Log in';
+}
+
+function setMethod(method) {
+  authMethod = method;
+  document.getElementById('method-phone')?.classList.toggle('on', method === 'phone');
+  document.getElementById('method-email')?.classList.toggle('on', method === 'email');
+  const phoneFlow = document.getElementById('flow-phone');
+  const emailFlow = document.getElementById('flow-email');
+  if (phoneFlow) phoneFlow.style.display = method === 'phone' ? 'block' : 'none';
+  if (emailFlow) emailFlow.style.display = method === 'email' ? 'block' : 'none';
+}
+
+function validatePhone() {
+  const inp = document.getElementById('phone-input');
+  if (!inp) return false;
+  const val = inp.value;
+  const valid = val.length === 10;
+  inp.classList.toggle('error', val.length > 0 && !valid);
+  const err = document.getElementById('phone-error');
+  if (err) err.style.display = val.length > 0 && !valid ? 'block' : 'none';
+  const btn = document.getElementById('send-otp-btn');
+  if (btn) btn.disabled = !valid;
+  return valid;
+}
+
+function sendOTP() {
+  if (!validatePhone()) return;
+  const phone = document.getElementById('phone-input').value;
+  const code = document.getElementById('country-code').value;
+  const full = code + ' ' + phone;
+  otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+  const stepPhone = document.getElementById('step-phone-input');
+  const stepOtp = document.getElementById('step-otp');
+  if (stepPhone) stepPhone.style.display = 'none';
+  if (stepOtp) stepOtp.style.display = 'block';
+  const sentTo = document.getElementById('otp-sent-to');
+  if (sentTo) sentTo.textContent = full;
+  const otp0 = document.getElementById('otp-0');
+  if (otp0) otp0.focus();
+  toast('Demo OTP: ' + otpCode + ' (auto-fills in 2s)');
+  setTimeout(() => {
+    otpCode.split('').forEach((d, i) => {
+      const box = document.getElementById('otp-' + i);
+      if (box) box.value = d;
+    });
+    const verifyBtn = document.getElementById('verify-otp-btn');
+    if (verifyBtn) verifyBtn.disabled = false;
+  }, 2000);
+  startResendTimer();
+}
+
+function otpInput(idx) {
+  const val = document.getElementById('otp-' + idx)?.value;
+  if (val && idx < 5) document.getElementById('otp-' + (idx + 1))?.focus();
+  const allFilled = Array.from({length: 6}, (_, i) => document.getElementById('otp-' + i)?.value || '').every(v => v);
+  const btn = document.getElementById('verify-otp-btn');
+  if (btn) btn.disabled = !allFilled;
+}
+
+function otpKey(e, idx) {
+  if (e.key === 'Backspace' && !document.getElementById('otp-' + idx)?.value && idx > 0) {
+    document.getElementById('otp-' + (idx - 1))?.focus();
+  }
+}
+
+function verifyOTP() {
+  const entered = Array.from({length: 6}, (_, i) => document.getElementById('otp-' + i)?.value || '').join('');
+  const btn = document.getElementById('verify-otp-btn');
+  if (btn) { btn.textContent = 'Verifying...'; btn.classList.add('loading'); btn.disabled = true; }
+  setTimeout(() => {
+    if (entered === otpCode) {
+      const phone = document.getElementById('country-code').value + ' ' + document.getElementById('phone-input').value;
+      showLoginSuccess(phone, '');
+    } else {
+      if (btn) { btn.textContent = 'Verify & Continue'; btn.classList.remove('loading'); btn.disabled = false; }
+      Array.from({length: 6}, (_, i) => {
+        const b = document.getElementById('otp-' + i);
+        if (b) { b.classList.add('error'); b.value = ''; }
+      });
+      document.getElementById('otp-0')?.focus();
+      toast('Incorrect OTP — try again');
+    }
+  }, 1200);
+}
+
+function backToPhone() {
+  const stepPhone = document.getElementById('step-phone-input');
+  const stepOtp = document.getElementById('step-otp');
+  if (stepPhone) stepPhone.style.display = 'block';
+  if (stepOtp) stepOtp.style.display = 'none';
+  clearInterval(resendInterval);
+}
+
+function startResendTimer() {
+  let secs = 30;
+  const link = document.getElementById('resend-link');
+  if (link) { link.style.pointerEvents = 'none'; link.style.opacity = '0.5'; }
+  clearInterval(resendInterval);
+  resendInterval = setInterval(() => {
+    secs--;
+    const t = document.getElementById('resend-timer');
+    if (t) t.textContent = secs;
+    if (secs <= 0) {
+      clearInterval(resendInterval);
+      if (link) {
+        link.innerHTML = '<span style="color:var(--crimson2);cursor:pointer;font-weight:500;" onclick="resendOTP()">Resend OTP</span>';
+        link.style.pointerEvents = 'auto';
+        link.style.opacity = '1';
+      }
+    }
+  }, 1000);
+}
+
+function resendOTP() {
+  otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+  toast('New OTP: ' + otpCode + ' (auto-fills in 2s)');
+  Array.from({length: 6}, (_, i) => { const b = document.getElementById('otp-' + i); if (b) b.value = ''; });
+  const btn = document.getElementById('verify-otp-btn');
+  if (btn) btn.disabled = true;
+  setTimeout(() => {
+    otpCode.split('').forEach((d, i) => { const b = document.getElementById('otp-' + i); if (b) b.value = d; });
+    if (btn) btn.disabled = false;
+  }, 2000);
+  startResendTimer();
+}
+
+function validateEmail() {
+  const val = document.getElementById('email-input')?.value || '';
+  const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+  document.getElementById('email-input')?.classList.toggle('error', val.length > 0 && !valid);
+  const err = document.getElementById('email-error');
+  if (err) err.style.display = val.length > 0 && !valid ? 'block' : 'none';
+  return valid;
+}
+
+function validatePass() {
+  const val = document.getElementById('pass-input')?.value || '';
+  const valid = val.length >= 8;
+  document.getElementById('pass-input')?.classList.toggle('error', val.length > 0 && !valid);
+  const err = document.getElementById('pass-error');
+  if (err) err.style.display = val.length > 0 && !valid ? 'block' : 'none';
+  return valid;
+}
+
+function togglePass() {
+  const inp = document.getElementById('pass-input');
+  if (!inp) return;
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  const eye = document.getElementById('eye-btn');
+  if (eye) eye.textContent = inp.type === 'password' ? '👁' : '🙈';
+}
+
+function emailAuth() {
+  if (!validateEmail() || !validatePass()) return;
+  const btn = document.getElementById('email-auth-btn');
+  const email = document.getElementById('email-input')?.value.trim() || '';
+  const nameEl = document.getElementById('name-input');
+  const name = nameEl ? nameEl.value.trim() : '';
+  if (btn) { btn.textContent = authMode === 'login' ? 'Logging in...' : 'Creating account...'; btn.classList.add('loading'); btn.disabled = true; }
+  setTimeout(() => showLoginSuccess(email, name), 1400);
+}
+
+function forgotPassword() {
+  if (!validateEmail()) { document.getElementById('email-input')?.focus(); toast('Enter your email first'); return; }
+  toast('Password reset link sent to ' + (document.getElementById('email-input')?.value || ''));
+}
+
+function socialAuth(provider) {
+  if (provider === 'Google') {
+    toast('Connecting to Google...');
+    setTimeout(() => {
+      const name = prompt('Enter your name:') || 'Google User';
+      const email = name.toLowerCase().replace(/\s+/g, '') + '@gmail.com';
+      showLoginSuccess(email, name);
+    }, 600);
+    return;
+  }
+  toast('Connecting to ' + provider + '...');
+  setTimeout(() => showLoginSuccess('user@' + provider.toLowerCase() + '.com', provider + ' User'), 1500);
+}
+
+function showLoginSuccess(identifier, name) {
+  clearInterval(resendInterval);
+  const isPhone = identifier && identifier.startsWith('+');
+  const derivedName = name || (isPhone ? 'User' : (identifier || '').split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, c => c.toUpperCase()));
+  saveUser({ name: derivedName, email: isPhone ? '' : identifier, phone: isPhone ? identifier : '' });
+  const ls = document.getElementById('login-screen');
+  const body = document.querySelector('.login-body');
+  if (body) {
+    body.innerHTML = '<div class="login-success"><div class="success-ring">&#10003;</div><div class="success-title">Welcome, ' + derivedName + '!</div><div class="success-sub">Signed in as<br><strong style="color:var(--offwhite)">' + identifier + '</strong></div></div>';
+  }
+  setTimeout(() => {
+    if (ls) ls.classList.add('hidden');
+    updateHomeGreeting();
+    switchTo('home');
+    detectLocation();
+  }, 1400);
+}
+
+function updateHomeGreeting() {
+  const el = document.querySelector('.greet-name');
+  if (el && currentUser.name) el.textContent = currentUser.name + ' 👋';
+}
+
 async function init() {
   setGreeting();
   buildArticles();
